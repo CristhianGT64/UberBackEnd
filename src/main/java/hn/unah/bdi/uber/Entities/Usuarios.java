@@ -24,4 +24,6 @@ public class Usuarios {
     private String contrasenia;
 
     private Personas persona;
+
+    private Telefonos telefono;
 }

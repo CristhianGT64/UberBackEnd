@@ -1,3 +1,5 @@
+DROP DATABASE uber;
+
 CREATE DATABASE uber;
 
 USE uber;
@@ -23,3 +25,4 @@ CREATE TABLE telefonos(
 	numero VARCHAR(60),
 	idPersona INTEGER REFERENCES personas(idPersona)
 );
+
