@@ -25,6 +25,12 @@ public class Usuarios {
 
     private String contrasenia;
 
+    @Column(name = "latactual")
+    private Float latActual;
+
+    @Column(name = "lonactual")
+    private Float lonActual;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "idpersona", referencedColumnName = "idpersona") //Importante poner para que no cree nuevos atributos, llaves foraneas
     private Personas persona;

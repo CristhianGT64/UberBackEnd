@@ -18,7 +18,9 @@ CREATE TABLE personas(
 CREATE TABLE usuarios(
 	idUsuario INTEGER PRIMARY KEY IDENTITY(1,1),
 	correo VARCHAR(50) UNIQUE,
-	contrasenia VARCHAR(60),
+	contrasenia VARCHAR(60) NOT NULL,
+	latActual DECIMAL(9,7),
+	lonActual DECIMAL(9,7),
 	idPersona INTEGER REFERENCES personas(idPersona)
 );
 
