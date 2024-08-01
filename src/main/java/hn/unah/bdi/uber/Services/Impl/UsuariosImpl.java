@@ -26,9 +26,14 @@ public class UsuariosImpl implements UsuariosService{
         "INSERT INTO telefonos (numero, idPersona) VALUES ('" + usuarios.getPersona().getTelefonos().get(0).getNumero() + "', @idPersona); " +
         "COMMIT;";
         
-        if (this.jdbcTemplate.update(queryCrearUsuario) != 0) {
-            return true;
+        try {
+            if (this.jdbcTemplate.update(queryCrearUsuario) != 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
         }
+
         return false;
     }
     
