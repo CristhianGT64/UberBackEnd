@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -25,6 +26,8 @@ public class Usuarios {
 
     private String contrasenia;
 
+    private Boolean visible;
+
     @Column(name = "latactual")
     private Float latActual;
 
@@ -34,5 +37,8 @@ public class Usuarios {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "idpersona", referencedColumnName = "idpersona") //Importante poner para que no cree nuevos atributos, llaves foraneas
     private Personas persona;
+
+    @OneToOne(mappedBy = "usuarios", cascade = CascadeType.ALL)
+    private Administradore administrador;
 
 }

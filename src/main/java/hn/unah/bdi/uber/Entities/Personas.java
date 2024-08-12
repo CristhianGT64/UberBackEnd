@@ -40,6 +40,6 @@ public class Personas {
     private Usuarios usuario;
 
     @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL)
-    private List<Telefonos> telefonos;
+    private List <TelefonosUsuarios>  telefonosUsuario;
 
 }
