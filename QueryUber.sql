@@ -55,6 +55,7 @@ CREATE TABLE marcas(
 	disponible BIT
 );
 
+--ya
 CREATE TABLE modelos(
 	idModelo INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
@@ -63,6 +64,7 @@ CREATE TABLE modelos(
 	UNIQUE (idMarca, idModelo)
 );
 
+--ya
 CREATE TABLE vehiculos(
 	idVehiculo INTEGER PRIMARY KEY IDENTITY(1,1),
 	numPlaca VARCHAR(10) UNIQUE,
@@ -73,6 +75,7 @@ CREATE TABLE vehiculos(
 	visible BIT
 );
 
+--ya
 CREATE TABLE tiposFotografias(
 	idTipoFotografia INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
@@ -80,6 +83,8 @@ CREATE TABLE tiposFotografias(
 	ubicacion TEXT
 );
 
+
+--ya
 CREATE TABLE licencias(
 	idLicencia INTEGER PRIMARY KEY IDENTITY(1,1),
 	licencia VARCHAR(255) NOT NULL UNIQUE,

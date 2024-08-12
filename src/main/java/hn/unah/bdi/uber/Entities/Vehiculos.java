@@ -17,7 +17,7 @@ public class Vehiculos {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idVehiculo")
+    @Column(name = "idvehiculo")
     private Float idVehiculo;
 
     @Column(name = "numplaca")
