@@ -80,7 +80,6 @@ CREATE TABLE tiposFotografias(
 	idTipoFotografia INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
 	diponible BIT,
-	ubicacion TEXT
 );
 
 
@@ -104,7 +103,8 @@ CREATE TABLE solicitudes(
 CREATE TABLE fotografiasSolicitud(
 	idFotografiaSolicitud INTEGER PRIMARY KEY IDENTITY(1,1),
 	idTipoFotografia INTEGER REFERENCES tiposFotografias(idTipoFotografia),
-	idSolicitud INTEGER REFERENCES solicitudes(idSolicitud)
+	idSolicitud INTEGER REFERENCES solicitudes(idSolicitud),
+	ubicacion TEXT
 );
 
 --ya
@@ -129,6 +129,7 @@ CREATE TABLE historialCuentas(
 	descripcion TEXT
 );
 
+--ya
 CREATE TABLE conductores(
 	idConductor INTEGER PRIMARY KEY IDENTITY(1,1),
 	idUsuario INTEGER REFERENCES usuarios(idUsuario),
@@ -137,20 +138,21 @@ CREATE TABLE conductores(
 	disponible BIT
 );
 
-
+--ya
 CREATE TABLE roles(
 	idRol INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(100),
 	descripcion TEXT
 );
 
+--ya
 CREATE TABLE usuariosRoles(
 	idUsuarioRol INTEGER PRIMARY KEY IDENTITY(1,1),
 	idUsuario INTEGER REFERENCES usuarios(idUsuario),
 	idRol INTEGER REFERENCES roles(idRol)
 );
 
-
+--ya
 CREATE TABLE verificacionesSolicitudes(
 	idVerificacionSolicitud INTEGER PRIMARY KEY IDENTITY(1,1),
 	idSolicitud INTEGER REFERENCES solicitudes(idSolicitud) UNIQUE,
@@ -160,14 +162,15 @@ CREATE TABLE verificacionesSolicitudes(
 	observaciones TEXT
 );
 
+
 CREATE TABLE solicitudesViajes(
 	idSolicitudViaje INTEGER PRIMARY KEY IDENTITY(1,1),
 	idEstado INTEGER REFERENCES estados(idEstado),
 	latitudOrigen DECIMAL(9,7),
 	longitudOrigen DECIMAL(9,7),
 	latitudDestino DECIMAL(9,7),
-	latituDestino DECIMAL(9,7),
-	idCliente INTEGER REFERENCES usuarios(idUsuario),
+	longitudDestino DECIMAL(9,7),
+	idUsuario INTEGER REFERENCES usuarios(idUsuario),
 	tarifa MONEY,
 	distancia FLOAT,
 	fechaSolicitud DATETIME,

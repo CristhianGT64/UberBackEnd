@@ -15,11 +15,12 @@ public class estados {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idEstado")
+    @Column(name = "idestado")
     private Float idEstado;
 
     private String nombre;
 
-    private Boolean disponible;
+    @Column(columnDefinition = "TINYINT(1)")
+    private Integer disponible;
 
 }

@@ -33,5 +33,6 @@ public class Vehiculos {
     @JoinColumn(name = "idmodelo", referencedColumnName =  "idmodelo")
     private Modelos modelo;
 
-    private Boolean visible;
+    @Column(columnDefinition = "TINYINT(1)")
+    private Integer visible;
 }

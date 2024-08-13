@@ -2,34 +2,33 @@ package hn.unah.bdi.uber.Entities;
 
 import java.util.List;
 
+import javax.management.relation.Role;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "tiposFotografias")
-public class tiposFotografias {
+@Table(name = "roles")
+public class Roles {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idtipofotografia")
-    private Float idTipoFotografia;
+    @Column(name = "idrol")
+    private Float idRol;
 
     private String nombre;
 
-    @Column(columnDefinition = "TINYINT(1)")
-    private Boolean disponible;
+    private String descripcion;
 
-    // private String ubicacion;
+    @ManyToMany
+    private List<Usuarios> usuario;
 
-    @OneToMany(mappedBy = "tiposfotografia")
-    private List <FotografiasSolicitud> fotografiasolicitud;
-
-}   
+}

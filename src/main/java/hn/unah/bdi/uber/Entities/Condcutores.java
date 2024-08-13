@@ -9,23 +9,36 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-@Entity
 @Data
-@Table(name = "Administradores")
-public class Administradore {
+@Entity
+@Table(name = "conductores")
+public class Condcutores {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idadministrador")
-    private Float idAdministrador;
+    @Column(name = "idconductor")
+    private Float idConductor;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "idusuario", referencedColumnName = "idusuario")
-    private Usuarios usuarios;
+    private Usuarios usuario;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "numplaca", referencedColumnName = "numplaca")
+    private Vehiculos vehiculo;
+
+    @OneToOne(mappedBy = "condcutor")
+    @JoinColumn(name = "idcuentaconductor", referencedColumnName = "idcuentaconductor")
+    private CuentasConductores cuentaConductor;
+
+    @Column(columnDefinition = "TINYINT(1)")
+    private Integer disponible;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Viajes> viaje;
 
 }

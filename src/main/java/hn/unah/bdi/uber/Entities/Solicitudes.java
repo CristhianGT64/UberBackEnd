@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -24,7 +25,7 @@ public class Solicitudes {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idfotografiasolicitud")
+    @Column(name = "idsolicitud")
     private Float idSolicitud;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -41,10 +42,6 @@ public class Solicitudes {
     @Column(name = "colorvehiculo")
     private String colorVehiculo;
 
-    @ManyToMany
-    @JoinTable(
-        name = "fotografiassolicitud",
-        joinColumns = @JoinColumn(name = "idsolicitud"),
-        inverseJoinColumns = @JoinColumn(name = "idtipofotografia"))
-    private List <tiposFotografias> tiposfotografias;
+    @OneToMany(mappedBy = "solicitud")
+    private List <FotografiasSolicitud> fotografiaSolicitud;
 }

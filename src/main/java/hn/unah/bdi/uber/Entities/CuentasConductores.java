@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 // import lombok.ToString;
@@ -27,5 +28,8 @@ public class CuentasConductores {
 
     @OneToMany(mappedBy = "cuentaConductor", cascade = CascadeType.ALL)
     private List<historialCuentas> historialCuenta;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Condcutores condcutor;
 
 }

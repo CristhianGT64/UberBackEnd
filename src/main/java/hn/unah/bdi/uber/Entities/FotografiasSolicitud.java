@@ -1,8 +1,5 @@
 package hn.unah.bdi.uber.Entities;
 
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,22 +7,25 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "Administradores")
-public class Administradore {
+@Table(name = "fotografiasSolicitud")
+public class FotografiasSolicitud {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idadministrador")
-    private Float idAdministrador;
+    @Column(name = "idfotografiasolicitud")
+    private Float idSolicitud;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idusuario", referencedColumnName = "idusuario")
-    private Usuarios usuarios;
+    @ManyToOne
+    @JoinColumn(name = "idsolicitud", referencedColumnName = "idsolicitud")
+    private Solicitudes solicitud;
+
+    @ManyToOne
+    @JoinColumn(name = "idtipofotografia", referencedColumnName = "idtipofotografia")
+    private tiposFotografias tiposfotografia;
 
 }

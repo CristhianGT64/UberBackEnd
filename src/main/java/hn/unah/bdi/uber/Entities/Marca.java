@@ -24,7 +24,8 @@ public class Marca {
 
     private String nombre;
 
-    private Boolean disponible;
+    @Column(columnDefinition = "TINYINT(1)")
+    private Integer disponible;
 
     @OneToMany(mappedBy = "marca", cascade = CascadeType.ALL)
     private List <Modelos> modelos;

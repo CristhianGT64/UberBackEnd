@@ -29,5 +29,6 @@ public class Modelos {
     @JoinColumn(name = "idmarca", referencedColumnName = "idmarca")
     private Marca marca;
 
-    private Boolean disponible;
+    @Column(columnDefinition = "TINYINT(1)")
+    private Integer disponible;
 }
