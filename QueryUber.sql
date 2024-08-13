@@ -91,33 +91,35 @@ CREATE TABLE licencias(
 	fechaVencimiento DATE
 );
 
+--YA
 CREATE TABLE solicitudes(
 	idSolicitud INTEGER PRIMARY KEY IDENTITY(1,1),
 	idUsuario INTEGER REFERENCES usuarios(idUsuario),
 	fechaNacimiento DATE,
 	idLicencia INTEGER REFERENCES licencias(idLicencia),
-	color VARCHAR(255)
+	colorVehiculo VARCHAR(255)
 );
 
-
+--ya
 CREATE TABLE fotografiasSolicitud(
 	idFotografiaSolicitud INTEGER PRIMARY KEY IDENTITY(1,1),
 	idTipoFotografia INTEGER REFERENCES tiposFotografias(idTipoFotografia),
 	idSolicitud INTEGER REFERENCES solicitudes(idSolicitud)
 );
 
+--ya
 CREATE TABLE movimientos(
 	idMovimiento INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
-	diponible INT
+	disponible bit
 );
 
-
+--ya
 CREATE TABLE CuentasConductores(
 	idCuentaConductor INTEGER PRIMARY KEY IDENTITY(1,1),
 	saldo DECIMAL(10,2) CHECK (saldo > 0)
 );
-
+--ya
 CREATE TABLE historialCuentas(
 	idHistorialCuentas INTEGER PRIMARY KEY IDENTITY(1,1),
 	idCuenta INTEGER REFERENCES CuentasConductores(idCuentaConductor),
@@ -241,48 +243,59 @@ CREATE TABLE telefonosSucursales(
 	idSucursal INTEGER REFERENCES sucursales(idSucursal)
 );
 
-CREATE TABLE numCorrelativo(
-	idNumCorrelativo INTEGER PRIMARY KEY IDENTITY(1,1),
-	correlativo BIGINT
-);
+--CREATE TABLE numCorrelativo(
+	--idNumCorrelativo INTEGER PRIMARY KEY IDENTITY(1,1),
+	--correlativo BIGINT
+--);
 
 CREATE TABLE tiposDocumentos(
 	idTipoDocumento INTEGER PRIMARY KEY IDENTITY(1,1),
-	numero INTEGER,
-	nombre VARCHAR(255),
-	idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
-	UNIQUE (idNumCorrelativo, idTipoDocumento)
+	numero INTEGER UNIQUE,
+	nombre VARCHAR(255) UNIQUE,
+	disponible BIT
+	--idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
+	--UNIQUE (idNumCorrelativo, idTipoDocumento)
 );
 
 CREATE TABLE establecimiento(
 	idEstablecimiento INTEGER PRIMARY KEY IDENTITY(1,1),
 	numero INTEGER,
-	idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
+	--idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
 	idTipoDocumento INTEGER REFERENCES tiposDocumentos(idTipoDocumento),
-	CONSTRAINT FK_numCorrelativo_tipoDocumento FOREIGN KEY (idNumCorrelativo,idTipoDocumento) REFERENCES tiposDocumentos(idNumCorrelativo,idTipoDocumento),
-	UNIQUE(idNumCorrelativo,idTipoDocumento, idEstablecimiento)
+	--CONSTRAINT FK_numCorrelativo_tipoDocumento FOREIGN KEY (idTipoDocumento) REFERENCES tiposDocumentos(idNumCorrelativo,idTipoDocumento),
+	UNIQUE(idTipoDocumento, idEstablecimiento)
+);
+
+CREATE TABLE rangoEmision(
+	idRangoEmision INTEGER PRIMARY KEY IDENTITY(1,1),
+	inicioRango INTEGER CHECK(inicioRango > 0),
+	inicioFinal INTEGER 
 );
 
 CREATE TABLE puntosEmision(
 	idPuntoEmision INTEGER PRIMARY KEY IDENTITY(1,1),
 	numero INTEGER,
-	idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
+	--idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
 	idTipoDocumento INTEGER REFERENCES tiposDocumentos(idTipoDocumento),
+	rangoEmision INTEGER REFERENCES rangoEmision(idRangoEmision),
 	idEstablecimiento INTEGER REFERENCES establecimiento(idEstablecimiento),
-	CONSTRAINT FK_numCorrelativo_tipoDocumento_establecimiento FOREIGN KEY (idNumCorrelativo,idTipoDocumento, idEstablecimiento) REFERENCES establecimiento(idNumCorrelativo,idTipoDocumento, idEstablecimiento),
-	UNIQUE(idNumCorrelativo,idTipoDocumento, idEstablecimiento, idPuntoEmision)
+	CONSTRAINT FK_tipoDocumento_establecimiento FOREIGN KEY (idTipoDocumento, idEstablecimiento) REFERENCES establecimiento(idTipoDocumento, idEstablecimiento),
+	UNIQUE(idTipoDocumento, idEstablecimiento, idPuntoEmision)
 );
 
 CREATE TABLE numerosFacturas(
 	idNumFactura INTEGER PRIMARY KEY IDENTITY(1,1),
 	numeroFormulado VARCHAR(255) UNIQUE,
-	idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
+	numCorrelativo INTEGER UNIQUE,
+	--idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
 	idTipoDocumento INTEGER REFERENCES tiposDocumentos(idTipoDocumento),
 	idEstablecimiento INTEGER REFERENCES establecimiento(idEstablecimiento),
 	idPuntoEmision INTEGER REFERENCES puntosEmision(idPuntoEmision),
-	CONSTRAINT FK_numCorrelativo_tipoDocumento_establecimiento_PEmision FOREIGN KEY (idNumCorrelativo,idTipoDocumento, idEstablecimiento, idPuntoEmision) REFERENCES puntosEmision(idNumCorrelativo,idTipoDocumento, idEstablecimiento, idPuntoEmision),
-	UNIQUE(idNumCorrelativo,idTipoDocumento, idEstablecimiento, idPuntoEmision, numeroFormulado)
+	CONSTRAINT FK_tipoDocumento_establecimiento_PEmision FOREIGN KEY (idTipoDocumento, idEstablecimiento, idPuntoEmision) REFERENCES puntosEmision(idTipoDocumento, idEstablecimiento, idPuntoEmision),
+	UNIQUE(idTipoDocumento, idEstablecimiento, idPuntoEmision, numeroFormulado),
 );
+
+
 
 
 CREATE TABLE facturas(
