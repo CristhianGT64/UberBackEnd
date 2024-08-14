@@ -22,8 +22,8 @@ public class UsuariosImpl implements UsuariosService{
         "INSERT INTO personas  (dni, nombre1, nombre2, apellido1, apellido2)  VALUES " +
         "(' " +usuarios.getPersona().getDni()+ "','" + usuarios.getPersona().getNombre1() + "', '" + usuarios.getPersona().getNombre2() + "', '" + usuarios.getPersona().getApellido1() + "', '"+ usuarios.getPersona().getApellido2() +"'); " +
         "DECLARE @idPersona INT; SET @idPersona = SCOPE_IDENTITY();" +
-        "INSERT INTO usuarios (correo, contrasenia, latActual, lonActual, idPersona)  VALUES ('" +usuarios.getCorreo()+ "', '" + usuarios.getContrasenia() + "' , " + usuarios.getLatActual()+ " , " + usuarios.getLonActual() + ", @idPersona); " +
-        // "INSERT INTO telefonos (numero, idPersona) VALUES ('" + usuarios.getPersona().getTelefonos().get(0).getNumero() + "', @idPersona); " +
+        "INSERT INTO usuarios (correo, contrasenia,visible, latActual, lonActual, idPersona)  VALUES ('" + usuarios.getCorreo()+ "', '" + usuarios.getContrasenia() + "' , " + usuarios.getVisible() + ", " + usuarios.getLatActual()+ " , " + usuarios.getLonActual() + ", @idPersona); " +
+        "INSERT INTO telefonosUsuarios (numero, idPersona) VALUES ('" + usuarios.getPersona().getTelefonosUsuario().get(0).getNumero() + "', @idPersona); " +
         "COMMIT;";
         
         try {

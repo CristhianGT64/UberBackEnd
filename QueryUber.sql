@@ -162,7 +162,7 @@ CREATE TABLE verificacionesSolicitudes(
 	observaciones TEXT
 );
 
-
+--ya
 CREATE TABLE solicitudesViajes(
 	idSolicitudViaje INTEGER PRIMARY KEY IDENTITY(1,1),
 	idEstado INTEGER REFERENCES estados(idEstado),
@@ -176,22 +176,25 @@ CREATE TABLE solicitudesViajes(
 	fechaSolicitud DATETIME,
 );
 
+--ya
 CREATE TABLE viajes(
 	idViaje INTEGER PRIMARY KEY IDENTITY(1,1),
 	idConductor INTEGER REFERENCES conductores(idConductor),
 	fechaIni DATETIME,
 	fechaFin DATETIME,
-	idSolicitudViaje INTEGER REFERENCES solicitudesViajes(idSolicitudViaje) ON UPDATE CASCADE ON DELETE CASCADE
+	idSolicitudViaje INTEGER REFERENCES solicitudesViajes(idSolicitudViaje)
 );
-
+\
+--Ya
 CREATE TABLE mensajes(
 	idMensaje INTEGER PRIMARY KEY IDENTITY(1,1),
 	idUsuario INTEGER REFERENCES usuarios(idUsuario),
 	mensaje TEXT,
 	fechaHora DATETIME,
-	idSolicitudViaje INTEGER REFERENCES solicitudesViajes(idSolicitudViaje) ON UPDATE CASCADE ON DELETE CASCADE
+	idSolicitudViaje INTEGER REFERENCES solicitudesViajes(idSolicitudViaje) 
 );
 
+--ya
 CREATE TABLE historialesConductores(
 	idhistorialConductor INTEGER PRIMARY KEY IDENTITY(1,1),
 	idViaje INTEGER REFERENCES viajes(idViaje),
@@ -199,13 +202,14 @@ CREATE TABLE historialesConductores(
 	comentario TEXT
 );
 
-CREATE TABLE historialesClientes(
-	idhistorialClientes INTEGER PRIMARY KEY IDENTITY(1,1),
-	idViaje INTEGER REFERENCES viajes(idViaje),
-	evaluacion INTEGER,
-	comentario TEXT
-);
+--CREATE TABLE historialesClientes(
+	--idhistorialClientes INTEGER PRIMARY KEY IDENTITY(1,1),
+	--idViaje INTEGER REFERENCES viajes(idViaje),
+	--evaluacion INTEGER,
+	--comentario TEXT
+--);
 
+--ya
 CREATE TABLE cais(
 	idCai INTEGER PRIMARY KEY IDENTITY(1,1),
 	cai VARCHAR(255) UNIQUE,
@@ -213,25 +217,28 @@ CREATE TABLE cais(
 	disponible BIT
 );
 
+--YA
 CREATE TABLE metodosPagos(
 	idMetodoPago INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255) UNIQUE,
 	disponible BIT
 );
 
+--YA
 CREATE TABLE empresa(
 	idEmpresa INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
 	rtn VARCHAR(20)
 );
 
+--YA
 CREATE TABLE correos(
 	idCorreo INTEGER PRIMARY KEY IDENTITY(1,1),
 	correo VARCHAR(200),
 	disponible BIT,
 	idEmpresa INTEGER REFERENCES empresa(idEmpresa)
 );
-
+--YA
 CREATE TABLE sucursales(
 	idSucursal INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
@@ -239,6 +246,7 @@ CREATE TABLE sucursales(
 	idEmpresa INTEGER REFERENCES empresa(idEmpresa),
 );
 
+--YA
 CREATE TABLE telefonosSucursales(
 	idTelefonosSucursales INTEGER PRIMARY KEY IDENTITY(1,1),
 	numero VARCHAR(20) UNIQUE,
@@ -251,6 +259,7 @@ CREATE TABLE telefonosSucursales(
 	--correlativo BIGINT
 --);
 
+--YA
 CREATE TABLE tiposDocumentos(
 	idTipoDocumento INTEGER PRIMARY KEY IDENTITY(1,1),
 	numero INTEGER UNIQUE,
@@ -262,7 +271,7 @@ CREATE TABLE tiposDocumentos(
 
 CREATE TABLE establecimiento(
 	idEstablecimiento INTEGER PRIMARY KEY IDENTITY(1,1),
-	numero INTEGER,
+	numero INTEGER UNIQUE,
 	--idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
 	idTipoDocumento INTEGER REFERENCES tiposDocumentos(idTipoDocumento),
 	--CONSTRAINT FK_numCorrelativo_tipoDocumento FOREIGN KEY (idTipoDocumento) REFERENCES tiposDocumentos(idNumCorrelativo,idTipoDocumento),
@@ -317,4 +326,4 @@ CREATE TABLE facturas(
 
 SELECT * FROM usuarios;
 SELECT * FROM personas;
-SELECT * FROM conductores;
+SELECT * FROM telefonosUsuarios;

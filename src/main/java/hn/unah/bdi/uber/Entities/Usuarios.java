@@ -43,8 +43,8 @@ public class Usuarios {
     @JoinColumn(name = "idpersona", referencedColumnName = "idpersona") //Importante poner para que no cree nuevos atributos, llaves foraneas
     private Personas persona;
 
-    @OneToOne(mappedBy = "usuarios", cascade = CascadeType.ALL)
-    private Administradore administrador;
+    // @OneToOne(mappedBy = "usuarios", cascade = CascadeType.ALL)
+    // private Administradore administrador;
 
     @ManyToMany
     @JoinTable(

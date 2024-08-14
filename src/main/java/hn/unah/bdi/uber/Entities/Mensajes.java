@@ -10,30 +10,29 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "viajes")
-public class Viajes {
+@Table(name = "mensajes")
+public class Mensajes {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idviaje")
-    private Float idViaje;
+    @Column(name = "idmensaje")
+    private Float idMensaje;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idconductor")
-    private Condcutores condcutor;
+    private Usuarios usuario;
 
-    @Column(name = "fechaini")
-    private Date fechaIni;
+    private String mensaje;
 
-    @Column(name = "fechafin")
-    private Date fechaFin;
+    @Column(name = "fechahora")
+    private Date fechaHora;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idsolicitudviaje", referencedColumnName = "idsolicitudviaje")
-    private solicitudesViajes solicitudViaje;
+    // @JoinColumn(name = "idSolicitudViaje", referencedColumnName = "idSolicitudViaje")
+    // private solicitudesViajes solicitudViaje;
+
 }
