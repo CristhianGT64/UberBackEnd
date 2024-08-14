@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "fotografiasSolicitud")
+@Table(name = "fotografiassolicitud")
 public class FotografiasSolicitud {
 
     @Id
@@ -27,5 +27,7 @@ public class FotografiasSolicitud {
     @ManyToOne
     @JoinColumn(name = "idtipofotografia", referencedColumnName = "idtipofotografia")
     private tiposFotografias tiposfotografia;
+
+    private String ubicacion;
 
 }

@@ -13,7 +13,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "numerosFacturas")
+@Table(name = "numerosfacturas")
 public class numerosFacturas {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,7 +14,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "tiposFotografias")
+@Table(name = "tiposfotografias")
 public class tiposFotografias {
     
     @Id

@@ -24,7 +24,7 @@ public class Facturas {
     private Float idFactura;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idnumfactura", referencedColumnName = "idnumfactura")
+    @JoinColumn(name = "numfactura", referencedColumnName = "idnumfactura")
     private numerosFacturas numeroFactura;
 
     @ManyToOne
@@ -38,7 +38,7 @@ public class Facturas {
     private Double subtotal;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idViaje", referencedColumnName = "idViaje")
+    @JoinColumn(name = "idviaje", referencedColumnName = "idviaje")
     private Viajes viajes;
 
     private Double isv;

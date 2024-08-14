@@ -32,7 +32,7 @@ public class Solicitudes {
     @JoinColumn(name = "idusuario", referencedColumnName = "idusuario")
     private Usuarios usuarios;
 
-    @Column(name = "fechavacimiento")
+    @Column(name = "fechanacimiento")
     private Date fechaNacimiento;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -41,6 +41,18 @@ public class Solicitudes {
 
     @Column(name = "colorvehiculo")
     private String colorVehiculo;
+
+    @Column(name = "numplaca")
+    private String numPlaca;
+
+    @Column(name = "numpuertas")
+    private Integer numPuertas;
+
+    @Column(name = "anio")
+    private Integer anio;
+
+    @Column(name = "numasientos")
+    private Integer numasientos;
 
     @OneToMany(mappedBy = "solicitud")
     private List <FotografiasSolicitud> fotografiaSolicitud;

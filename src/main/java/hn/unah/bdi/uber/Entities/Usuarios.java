@@ -48,7 +48,7 @@ public class Usuarios {
 
     @ManyToMany
     @JoinTable(
-        name = "usuariosRoles",
+        name = "usuariosroles",
         joinColumns = @JoinColumn(name = "idusuario"),
         inverseJoinColumns = @JoinColumn(name = "idrol")
     )

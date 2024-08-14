@@ -7,7 +7,7 @@ Go
 USE uber;
 Go
 
---ya
+--ya ya
 CREATE TABLE personas( 
 	idPersona INTEGER PRIMARY KEY IDENTITY(1,1),
 	dni VARCHAR(255) UNIQUE,
@@ -17,18 +17,18 @@ CREATE TABLE personas(
 	apellido2 VARCHAR(255)
 );
 
---ya
+--ya YA
 CREATE TABLE usuarios(
 	idUsuario INTEGER PRIMARY KEY IDENTITY(1,1),
 	correo VARCHAR(50) UNIQUE,
 	contrasenia VARCHAR(60) NOT NULL,
 	latActual DECIMAL(9,7),
 	lonActual DECIMAL(9,7),
-	idPersona INTEGER REFERENCES personas(idPersona) ON UPDATE CASCADE UNIQUE,
+	idPersona INTEGER REFERENCES personas(idPersona) UNIQUE,
 	visible BIT
 );
 
---ya
+--ya YA
 CREATE TABLE administradores(
 	idAdministrador INTEGER PRIMARY KEY IDENTITY(1,1),
 	idUsuario INTEGER REFERENCES usuarios(idUsuario)
@@ -48,14 +48,14 @@ CREATE TABLE estados(
 	disponible BIT
 );
 
---ya
+--ya YA
 CREATE TABLE marcas(
 	idMarca INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
 	disponible BIT
 );
 
---ya
+--ya YA
 CREATE TABLE modelos(
 	idModelo INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
@@ -64,18 +64,21 @@ CREATE TABLE modelos(
 	UNIQUE (idMarca, idModelo)
 );
 
---ya
+--ya YA
 CREATE TABLE vehiculos(
 	idVehiculo INTEGER PRIMARY KEY IDENTITY(1,1),
 	numPlaca VARCHAR(10) UNIQUE,
 	color VARCHAR(100),
+	numPuertas INTEGER CHECK (numPuertas > 0 AND numPuertas < 5),
+	anio INTEGER CHECK(anio > 2014 AND anio < 2030),
+	numAsientos INTEGER CHECK (numAsientos > 0 AND numAsientos < 6),
 	idMarca INTEGER REFERENCES marcas(idMarca),
 	idModelo INTEGER REFERENCES modelos(idModelo),
 	CONSTRAINT fk_marca_placa FOREIGN KEY (idMarca, idModelo) REFERENCES modelos(idMarca, idModelo),
 	visible BIT
 );
 
---ya
+--ya YA
 CREATE TABLE tiposFotografias(
 	idTipoFotografia INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
@@ -83,23 +86,27 @@ CREATE TABLE tiposFotografias(
 );
 
 
---ya
+--ya YA
 CREATE TABLE licencias(
 	idLicencia INTEGER PRIMARY KEY IDENTITY(1,1),
 	licencia VARCHAR(255) NOT NULL UNIQUE,
 	fechaVencimiento DATE
 );
 
---YA
+--YA YA
 CREATE TABLE solicitudes(
 	idSolicitud INTEGER PRIMARY KEY IDENTITY(1,1),
 	idUsuario INTEGER REFERENCES usuarios(idUsuario),
 	fechaNacimiento DATE,
 	idLicencia INTEGER REFERENCES licencias(idLicencia),
-	colorVehiculo VARCHAR(255)
+	colorVehiculo VARCHAR(255),
+	numPlaca VARCHAR(10) UNIQUE,
+	numPuertas INTEGER CHECK (numPuertas > 0 AND numPuertas < 5),
+	anio INTEGER CHECK(anio > 2014 AND anio < 2030),
+	numAsientos INTEGER CHECK (numAsientos > 0 AND numAsientos < 6),
 );
 
---ya
+--ya YA
 CREATE TABLE fotografiasSolicitud(
 	idFotografiaSolicitud INTEGER PRIMARY KEY IDENTITY(1,1),
 	idTipoFotografia INTEGER REFERENCES tiposFotografias(idTipoFotografia),
@@ -107,19 +114,19 @@ CREATE TABLE fotografiasSolicitud(
 	ubicacion TEXT
 );
 
---ya
+--ya YA
 CREATE TABLE movimientos(
 	idMovimiento INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
 	disponible bit
 );
 
---ya
+--ya YA
 CREATE TABLE CuentasConductores(
 	idCuentaConductor INTEGER PRIMARY KEY IDENTITY(1,1),
 	saldo DECIMAL(10,2) CHECK (saldo > 0)
 );
---ya
+--ya YA
 CREATE TABLE historialCuentas(
 	idHistorialCuentas INTEGER PRIMARY KEY IDENTITY(1,1),
 	idCuenta INTEGER REFERENCES CuentasConductores(idCuentaConductor),
@@ -129,7 +136,7 @@ CREATE TABLE historialCuentas(
 	descripcion TEXT
 );
 
---ya
+--ya YA
 CREATE TABLE conductores(
 	idConductor INTEGER PRIMARY KEY IDENTITY(1,1),
 	idUsuario INTEGER REFERENCES usuarios(idUsuario),
@@ -138,21 +145,21 @@ CREATE TABLE conductores(
 	disponible BIT
 );
 
---ya
+--ya YA
 CREATE TABLE roles(
 	idRol INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(100),
 	descripcion TEXT
 );
 
---ya
+--ya YA
 CREATE TABLE usuariosRoles(
 	idUsuarioRol INTEGER PRIMARY KEY IDENTITY(1,1),
 	idUsuario INTEGER REFERENCES usuarios(idUsuario),
 	idRol INTEGER REFERENCES roles(idRol)
 );
 
---ya
+--ya YA
 CREATE TABLE verificacionesSolicitudes(
 	idVerificacionSolicitud INTEGER PRIMARY KEY IDENTITY(1,1),
 	idSolicitud INTEGER REFERENCES solicitudes(idSolicitud) UNIQUE,
@@ -162,7 +169,7 @@ CREATE TABLE verificacionesSolicitudes(
 	observaciones TEXT
 );
 
---ya
+--ya YA
 CREATE TABLE solicitudesViajes(
 	idSolicitudViaje INTEGER PRIMARY KEY IDENTITY(1,1),
 	idEstado INTEGER REFERENCES estados(idEstado),
@@ -176,7 +183,7 @@ CREATE TABLE solicitudesViajes(
 	fechaSolicitud DATETIME,
 );
 
---ya
+--ya YA
 CREATE TABLE viajes(
 	idViaje INTEGER PRIMARY KEY IDENTITY(1,1),
 	idConductor INTEGER REFERENCES conductores(idConductor),
@@ -184,8 +191,8 @@ CREATE TABLE viajes(
 	fechaFin DATETIME,
 	idSolicitudViaje INTEGER REFERENCES solicitudesViajes(idSolicitudViaje)
 );
-\
---Ya
+
+--Ya YA
 CREATE TABLE mensajes(
 	idMensaje INTEGER PRIMARY KEY IDENTITY(1,1),
 	idUsuario INTEGER REFERENCES usuarios(idUsuario),
@@ -194,7 +201,7 @@ CREATE TABLE mensajes(
 	idSolicitudViaje INTEGER REFERENCES solicitudesViajes(idSolicitudViaje) 
 );
 
---ya
+--ya YA
 CREATE TABLE historialesConductores(
 	idhistorialConductor INTEGER PRIMARY KEY IDENTITY(1,1),
 	idViaje INTEGER REFERENCES viajes(idViaje),
@@ -209,7 +216,7 @@ CREATE TABLE historialesConductores(
 	--comentario TEXT
 --);
 
---ya
+--ya YA
 CREATE TABLE cais(
 	idCai INTEGER PRIMARY KEY IDENTITY(1,1),
 	cai VARCHAR(255) UNIQUE,
@@ -217,28 +224,28 @@ CREATE TABLE cais(
 	disponible BIT
 );
 
---YA
+--YA YA
 CREATE TABLE metodosPagos(
 	idMetodoPago INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255) UNIQUE,
 	disponible BIT
 );
 
---YA
+--YA YA
 CREATE TABLE empresa(
 	idEmpresa INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
 	rtn VARCHAR(20)
 );
 
---YA
+--YA YA
 CREATE TABLE correos(
 	idCorreo INTEGER PRIMARY KEY IDENTITY(1,1),
 	correo VARCHAR(200),
 	disponible BIT,
 	idEmpresa INTEGER REFERENCES empresa(idEmpresa)
 );
---YA
+--YA YA
 CREATE TABLE sucursales(
 	idSucursal INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255),
@@ -246,7 +253,7 @@ CREATE TABLE sucursales(
 	idEmpresa INTEGER REFERENCES empresa(idEmpresa),
 );
 
---YA
+--YA  YA
 CREATE TABLE telefonosSucursales(
 	idTelefonosSucursales INTEGER PRIMARY KEY IDENTITY(1,1),
 	numero VARCHAR(20) UNIQUE,
@@ -259,7 +266,7 @@ CREATE TABLE telefonosSucursales(
 	--correlativo BIGINT
 --);
 
---YA
+--YA YA
 CREATE TABLE tiposDocumentos(
 	idTipoDocumento INTEGER PRIMARY KEY IDENTITY(1,1),
 	numero INTEGER UNIQUE,
@@ -269,6 +276,7 @@ CREATE TABLE tiposDocumentos(
 	--UNIQUE (idNumCorrelativo, idTipoDocumento)
 );
 
+--YA YA
 CREATE TABLE establecimiento(
 	idEstablecimiento INTEGER PRIMARY KEY IDENTITY(1,1),
 	numero INTEGER UNIQUE,
@@ -278,23 +286,26 @@ CREATE TABLE establecimiento(
 	UNIQUE(idTipoDocumento, idEstablecimiento)
 );
 
+--Ya YA
 CREATE TABLE rangoEmision(
 	idRangoEmision INTEGER PRIMARY KEY IDENTITY(1,1),
 	inicioRango INTEGER CHECK(inicioRango > 0),
-	inicioFinal INTEGER 
+	finalRango INTEGER 
 );
 
+--YA YA
 CREATE TABLE puntosEmision(
 	idPuntoEmision INTEGER PRIMARY KEY IDENTITY(1,1),
 	numero INTEGER,
 	--idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
 	idTipoDocumento INTEGER REFERENCES tiposDocumentos(idTipoDocumento),
-	rangoEmision INTEGER REFERENCES rangoEmision(idRangoEmision),
+	idRangoEmision INTEGER REFERENCES rangoEmision(idRangoEmision),
 	idEstablecimiento INTEGER REFERENCES establecimiento(idEstablecimiento),
 	CONSTRAINT FK_tipoDocumento_establecimiento FOREIGN KEY (idTipoDocumento, idEstablecimiento) REFERENCES establecimiento(idTipoDocumento, idEstablecimiento),
 	UNIQUE(idTipoDocumento, idEstablecimiento, idPuntoEmision)
 );
 
+--YA YA
 CREATE TABLE numerosFacturas(
 	idNumFactura INTEGER PRIMARY KEY IDENTITY(1,1),
 	numeroFormulado VARCHAR(255) UNIQUE,
@@ -304,17 +315,17 @@ CREATE TABLE numerosFacturas(
 	idEstablecimiento INTEGER REFERENCES establecimiento(idEstablecimiento),
 	idPuntoEmision INTEGER REFERENCES puntosEmision(idPuntoEmision),
 	CONSTRAINT FK_tipoDocumento_establecimiento_PEmision FOREIGN KEY (idTipoDocumento, idEstablecimiento, idPuntoEmision) REFERENCES puntosEmision(idTipoDocumento, idEstablecimiento, idPuntoEmision),
-	UNIQUE(idTipoDocumento, idEstablecimiento, idPuntoEmision, numeroFormulado),
+	UNIQUE(idTipoDocumento, idEstablecimiento, idPuntoEmision, numCorrelativo),
 );
 
 
 
-
+--ya 
 CREATE TABLE facturas(
-	idFcatura INTEGER PRIMARY KEY IDENTITY(1,1),
+	idFactura INTEGER PRIMARY KEY IDENTITY(1,1),
 	numFactura VARCHAR(255) REFERENCES numerosFacturas(numeroFormulado) UNIQUE,
-	idMetodo INTEGER REFERENCES metodosPagos(idMetodoPago),
-	idCais INTEGER REFERENCES cais(idCai),
+	idMetodoPago INTEGER REFERENCES metodosPagos(idMetodoPago),
+	idCai INTEGER REFERENCES cais(idCai),
 	subTotal MONEY,
 	idViaje INTEGER REFERENCES viajes(idViaje),
 	isv MONEY,

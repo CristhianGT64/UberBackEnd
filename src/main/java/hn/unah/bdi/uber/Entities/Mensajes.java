@@ -25,6 +25,7 @@ public class Mensajes {
     private Float idMensaje;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "idusuario", referencedColumnName = "idusuario")
     private Usuarios usuario;
 
     private String mensaje;
@@ -32,7 +33,8 @@ public class Mensajes {
     @Column(name = "fechahora")
     private Date fechaHora;
 
-    // @JoinColumn(name = "idSolicitudViaje", referencedColumnName = "idSolicitudViaje")
-    // private solicitudesViajes solicitudViaje;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "idsolicitudviaje", referencedColumnName = "idsolicitudviaje")
+    private solicitudesViajes solicitudViaje;
 
 }

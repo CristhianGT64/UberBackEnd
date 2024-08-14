@@ -38,7 +38,7 @@ public class Condcutores {
     @Column(columnDefinition = "TINYINT(1)")
     private Integer disponible;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "condcutor" ,cascade = CascadeType.ALL)
     private List<Viajes> viaje;
 
 }

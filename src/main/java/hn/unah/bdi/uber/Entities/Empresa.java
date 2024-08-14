@@ -26,7 +26,7 @@ public class Empresa {
 
     private String rtn;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "empresa" ,cascade = CascadeType.ALL)
     private List<Correos> correo;
 
     @OneToMany(mappedBy = "empresa")

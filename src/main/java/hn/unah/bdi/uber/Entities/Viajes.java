@@ -24,7 +24,7 @@ public class Viajes {
     private Float idViaje;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idconductor")
+    @JoinColumn(name = "idconductor", referencedColumnName = "idconductor")
     private Condcutores condcutor;
 
     @Column(name = "fechaini")

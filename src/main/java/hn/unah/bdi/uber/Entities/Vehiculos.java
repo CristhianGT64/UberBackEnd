@@ -25,6 +25,15 @@ public class Vehiculos {
 
     private String color;
 
+    @Column(name = "numpuertas")
+    private Integer numPuertas;
+
+    @Column(name = "anio")
+    private Integer anio;
+
+    @Column(name = "numasientos")
+    private Integer numasientos;
+
     @OneToOne
     @JoinColumn(name = "idmarca", referencedColumnName =  "idmarca")
     private Marca marca;

@@ -5,12 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "idCorreo")
+@Table(name = "correo")
 public class Correos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +24,8 @@ public class Correos {
     @Column(columnDefinition = "TINYINT(1)")
     private Integer disponible;
 
-    // private Empresa empresa;
+    @ManyToOne
+    @JoinColumn(name = "idempresa", referencedColumnName = "idempresa")
+    private Empresa empresa;
 
 }

@@ -14,7 +14,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "telefonosUsuarios")
+@Table(name = "telefonosusuarios")
 public class TelefonosUsuarios {
     
     @Id
@@ -25,7 +25,7 @@ public class TelefonosUsuarios {
     private String numero;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idPersona", referencedColumnName = "idPersona") //Importante poner para que no cree nuevos atributos, llaves foraneas
+    @JoinColumn(name = "idpersona", referencedColumnName = "idpersona") //Importante poner para que no cree nuevos atributos, llaves foraneas
     private Personas persona;
 
 }

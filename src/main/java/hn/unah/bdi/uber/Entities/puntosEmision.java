@@ -13,7 +13,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "puntosEmision")
+@Table(name = "puntosemision")
 public class puntosEmision {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

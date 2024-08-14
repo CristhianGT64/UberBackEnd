@@ -18,7 +18,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "solicitudesViajes")
+@Table(name = "solicitudesviajes")
 public class solicitudesViajes {
     
     @Id
@@ -55,7 +55,7 @@ public class solicitudesViajes {
     @OneToOne(mappedBy = "solicitudViaje", cascade = CascadeType.ALL)
     private Viajes viaje;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "solicitudViaje" ,cascade = CascadeType.ALL)
     private List <Mensajes> mensaje;
 
 }

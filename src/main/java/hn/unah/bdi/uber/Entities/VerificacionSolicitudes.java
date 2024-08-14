@@ -17,7 +17,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "verificacionesSolicitudes")
+@Table(name = "verificacionessolicitudes")
 public class VerificacionSolicitudes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
