@@ -1,10 +1,13 @@
 package hn.unah.bdi.uber.Controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.util.RouteMatcher.Route;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import hn.unah.bdi.uber.Entities.Personas;
 import hn.unah.bdi.uber.Entities.Usuarios;
 import hn.unah.bdi.uber.Services.Impl.UsuariosImpl;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +25,7 @@ public class UsuariosController {
     public Boolean CrearUsuario(@RequestBody Usuarios usuario) {
         return usuariosImpl.CrearUsuario(usuario);
     }
+
     
 
 
