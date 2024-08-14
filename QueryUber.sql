@@ -397,4 +397,19 @@ INSERT INTO modelos VALUES('Pegout', 5, 5);
 
 INSERT INTO roles VALUES('Administrador', 'Administrador del sistema');
 INSERT INTO roles VALUES('Conductor', 'Conductor de un vehiculo');
+INSERT INTO roles VALUES('Cliente', 'Consumidor de servicios');
+
+SELECT * FROM roles;
+
+--Triguer que cuando se inserta un nuevo usuario se le asigna un nuevo rol
+CREATE TRIGGER T_usuarios_roles 
+ON usuarios 
+AFTER INSERT
+AS	
+BEGIN
+    INSERT INTO usuariosRoles (idUsuario, idRol)
+    SELECT i.idUsuario, 1
+    FROM inserted i;
+END;
+
 
