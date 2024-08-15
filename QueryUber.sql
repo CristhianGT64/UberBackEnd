@@ -44,21 +44,21 @@ CREATE TABLE telefonosUsuarios(
 --ya
 CREATE TABLE estados(
 	idEstado INTEGER PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(255),
+	nombre VARCHAR(255) UNIQUE,
 	disponible BIT
 );
 
 --ya YA
 CREATE TABLE marcas(
 	idMarca INTEGER PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(255),
+	nombre VARCHAR(255) UNIQUE,
 	disponible BIT
 );
 
 --ya YA
 CREATE TABLE modelos(
 	idModelo INTEGER PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(255),
+	nombre VARCHAR(255) UNIQUE,
 	idMarca INTEGER REFERENCES marcas(idMarca) ON UPDATE CASCADE ON DELETE CASCADE,
 	disponible BIT,
 	UNIQUE (idMarca, idModelo)
@@ -81,7 +81,7 @@ CREATE TABLE vehiculos(
 --ya YA
 CREATE TABLE tiposFotografias(
 	idTipoFotografia INTEGER PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(255),
+	nombre VARCHAR(255) UNIQUE,
 	diponible BIT,
 );
 
@@ -104,6 +104,10 @@ CREATE TABLE solicitudes(
 	numPuertas INTEGER CHECK (numPuertas > 0 AND numPuertas < 5),
 	anio INTEGER CHECK(anio > 2014 AND anio < 2030),
 	numAsientos INTEGER CHECK (numAsientos > 0 AND numAsientos < 6),
+	idMarca INTEGER REFERENCES marcas(idMarca),
+	idModelo INTEGER REFERENCES modelos(idModelo),
+	CONSTRAINT fk_marca_placa FOREIGN KEY (idMarca, idModelo) REFERENCES modelos(idMarca, idModelo),
+	
 );
 
 --ya YA
@@ -117,7 +121,7 @@ CREATE TABLE fotografiasSolicitud(
 --ya YA
 CREATE TABLE movimientos(
 	idMovimiento INTEGER PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(255),
+	nombre VARCHAR(255) UNIQUE,
 	disponible bit
 );
 
@@ -148,7 +152,7 @@ CREATE TABLE conductores(
 --ya YA
 CREATE TABLE roles(
 	idRol INTEGER PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(100),
+	nombre VARCHAR(100) UNIQUE,
 	descripcion TEXT
 );
 
@@ -234,14 +238,14 @@ CREATE TABLE metodosPagos(
 --YA YA
 CREATE TABLE empresa(
 	idEmpresa INTEGER PRIMARY KEY IDENTITY(1,1),
-	nombre VARCHAR(255),
-	rtn VARCHAR(20)
+	nombre VARCHAR(255)UNIQUE,
+	rtn VARCHAR(20) UNIQUE
 );
 
 --YA YA
 CREATE TABLE correos(
 	idCorreo INTEGER PRIMARY KEY IDENTITY(1,1),
-	correo VARCHAR(200),
+	correo VARCHAR(200) UNIQUE,
 	disponible BIT,
 	idEmpresa INTEGER REFERENCES empresa(idEmpresa)
 );
@@ -338,9 +342,9 @@ CREATE TABLE facturas(
 SELECT * FROM usuarios;
 SELECT * FROM personas;
 SELECT * FROM telefonosUsuarios;
+GO
 
 -- Insert de catalogos
-
 INSERT INTO estados VALUES('Pendiente', 1);
 INSERT INTO estados VALUES('Aceptada', 1);
 INSERT INTO estados VALUES('Rechazada', 1);
@@ -359,24 +363,7 @@ INSERT INTO marcas VALUES('Peugeot', 1);
 INSERT INTO marcas VALUES('Mazda', 1);
 INSERT INTO marcas VALUES('Suzuki', 1);
 INSERT INTO marcas VALUES('BMW', 1);
-
-
-INSERT INTO modelos VALUES('Focus', 1, 1);
-INSERT INTO modelos VALUES('Fiesta', 1, 1);
-INSERT INTO modelos VALUES('Corolla', 1, 1);
-INSERT INTO modelos VALUES('Camry', 2, 2);
-INSERT INTO modelos VALUES('Yaris', 2, 2);
-INSERT INTO modelos VALUES('Sentra', 2, 2);
-INSERT INTO modelos VALUES('Civic', 2, 2);
-INSERT INTO modelos VALUES('Fit', 3, 3);
-INSERT INTO modelos VALUES('Tucson', 3, 3);
-INSERT INTO modelos VALUES('Elantra', 3, 3);
-INSERT INTO modelos VALUES('Accent', 4, 4);
-INSERT INTO modelos VALUES('Picanto', 4, 4);
-INSERT INTO modelos VALUES('JETTA', 5, 5);
-INSERT INTO modelos VALUES('Clio', 5, 5);
-INSERT INTO modelos VALUES('Pegout', 5, 5);
-
+GO
 
 INSERT INTO modelos VALUES('Focus', 1, 1);
 INSERT INTO modelos VALUES('Fiesta', 1, 1);
@@ -393,7 +380,24 @@ INSERT INTO modelos VALUES('Picanto', 4, 4);
 INSERT INTO modelos VALUES('JETTA', 5, 5);
 INSERT INTO modelos VALUES('Clio', 5, 5);
 INSERT INTO modelos VALUES('Pegout', 5, 5);
+GO
 
+INSERT INTO modelos VALUES('Focus', 1, 1);
+INSERT INTO modelos VALUES('Fiesta', 1, 1);
+INSERT INTO modelos VALUES('Corolla', 1, 1);
+INSERT INTO modelos VALUES('Camry', 2, 2);
+INSERT INTO modelos VALUES('Yaris', 2, 2);
+INSERT INTO modelos VALUES('Sentra', 2, 2);
+INSERT INTO modelos VALUES('Civic', 2, 2);
+INSERT INTO modelos VALUES('Fit', 3, 3);
+INSERT INTO modelos VALUES('Tucson', 3, 3);
+INSERT INTO modelos VALUES('Elantra', 3, 3);
+INSERT INTO modelos VALUES('Accent', 4, 4);
+INSERT INTO modelos VALUES('Picanto', 4, 4);
+INSERT INTO modelos VALUES('JETTA', 5, 5);
+INSERT INTO modelos VALUES('Clio', 5, 5);
+INSERT INTO modelos VALUES('Pegout', 5, 5);
+GO
 
 INSERT INTO roles VALUES('Administrador', 'Administrador del sistema');
 INSERT INTO roles VALUES('Conductor', 'Conductor de un vehiculo');
@@ -401,15 +405,81 @@ INSERT INTO roles VALUES('Cliente', 'Consumidor de servicios');
 
 SELECT * FROM roles;
 
+INSERT INTO tiposFotografias VALUES('Carnet', 1);
+INSERT INTO tiposFotografias VALUES('Foto Licencia', 1);
+INSERT INTO tiposFotografias VALUES('Foto Vehiculo', 1);
+INSERT INTO tiposFotografias VALUES('Foto Persona', 1);
+INSERT INTO tiposFotografias VALUES('Foto Confirmacion', 1);
+
+SELECT * FROM tiposFotografias;
+
+
+INSERT INTO movimientos VALUES('Entrada', 1);
+INSERT INTO movimientos VALUES('Salida', 1);
+INSERT INTO rangoEmision VALUES(1, 100);
+INSERT INTO rangoEmision VALUES(101, 200);
+INSERT INTO rangoEmision VALUES(301, 300);
+INSERT INTO tiposDocumentos VALUES(01, 'Factura', 1);
+INSERT INTO establecimiento VALUES(1, 01);
+INSERT INTO puntosEmision VALUES(001, 1, 01, 01, 1);
+INSERT INTO metodosPagos VALUES('Efectivo', 1);
+INSERT INTO metodosPagos VALUES('Credito', 1);
+INSERT INTO empresa VALUES('Uber', 08012024123456);
+INSERT INTO cais VALUES('1234-5689', '12-12-2024', 1);
+INSERT INTO telefonosSucursales VALUES(1234-5689);
+INSERT INTO Correos VALUES('uber@gmail.com', 1, 1)
+INSERT INTO Sucursales VALUES('Sucursal 1','Col Vista Hermosa', 1);
+GO
+SELECT * FROM usuariosRoles;
+
+INSERT INTO personas VALUES('0801200206928', 'Cristhian', 'David', 'Ordoniez', 'Lopez');
+INSERT INTO usuarios VALUES('crisadmin@correo.com', '1234', 2, 2, 1, 1);
+INSERT INTO telefonosUsuarios VALUES ('22237877', 1);
+INSERT INTO usuariosRoles VALUES(1,2),(1,1)
+GO
 --Triguer que cuando se inserta un nuevo usuario se le asigna un nuevo rol
-CREATE TRIGGER T_usuarios_roles 
+
+CREATE or ALTER TRIGGER T_usuarios_roles 
 ON usuarios 
 AFTER INSERT
 AS	
 BEGIN
     INSERT INTO usuariosRoles (idUsuario, idRol)
-    SELECT i.idUsuario, 1
+    SELECT i.idUsuario, 3
     FROM inserted i;
 END;
 
+--procedimiento almacenado para confirmar si un usuario existe o no
+CREATE or ALTER PROCEDURE VerificarUsuario
+    @correo NVARCHAR(255),
+    @contraseña NVARCHAR(255),
+    @existe BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @count INT;
+    SELECT @count = COUNT(*)
+    FROM usuarios
+    WHERE correo = @correo AND contrasenia = @contraseña;
+    IF @count > 0
+    BEGIN
+        SET @existe = 1;
+    END
+    ELSE
+    BEGIN
+        SET @existe = 0;
+    END
+END;
 
+--fIN DEL PROCEDIMIENTO ALMACENADO
+
+--Uso del procedimiento almacenado
+DECLARE @existe BIT;
+EXEC VerificarUsuario
+    @correo = 'crisadmin@correo.com',
+    @contraseña = '1234',
+    @existe = @existe OUTPUT;
+SELECT @existe AS ExisteUsuario;
+--Fin del procedimiento Almacenado
+
+SELECT * FROM usuarios;

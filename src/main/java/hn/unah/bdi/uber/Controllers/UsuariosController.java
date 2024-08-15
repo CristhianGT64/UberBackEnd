@@ -10,8 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 import hn.unah.bdi.uber.Entities.Personas;
 import hn.unah.bdi.uber.Entities.Usuarios;
 import hn.unah.bdi.uber.Services.Impl.UsuariosImpl;
+import hn.unah.bdi.uber.dtos.UsuarioSesion;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -26,6 +31,15 @@ public class UsuariosController {
         return usuariosImpl.CrearUsuario(usuario);
     }
 
+    @GetMapping("/buscarUsuario")
+    public UsuarioSesion buscarUsuarioCirrei(@RequestParam String correo) {
+        return this.usuariosImpl.buscarUsuario(correo);
+    }
+    
+    @GetMapping("/iniciarSesion")
+    public Boolean iniciarSesion(@RequestParam String correo, String contrasenia) {
+        return this.usuariosImpl.iniciarSesion(correo, contrasenia);
+    }
     
 
 
