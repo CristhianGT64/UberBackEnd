@@ -56,4 +56,12 @@ public class Solicitudes {
 
     @OneToMany(mappedBy = "solicitud")
     private List <FotografiasSolicitud> fotografiaSolicitud;
+
+    @OneToOne
+    @JoinColumn(name = "idmarca", referencedColumnName =  "idmarca")
+    private Marca marca;
+    
+    @OneToOne
+    @JoinColumn(name = "idmodelo", referencedColumnName =  "idmodelo")
+    private Modelos modelo;
 }

@@ -59,7 +59,7 @@ CREATE TABLE marcas(
 CREATE TABLE modelos(
 	idModelo INTEGER PRIMARY KEY IDENTITY(1,1),
 	nombre VARCHAR(255) UNIQUE,
-	idMarca INTEGER REFERENCES marcas(idMarca) ON UPDATE CASCADE ON DELETE CASCADE,
+	idMarca INTEGER REFERENCES marcas(idMarca),
 	disponible BIT,
 	UNIQUE (idMarca, idModelo)
 );
@@ -100,14 +100,13 @@ CREATE TABLE solicitudes(
 	fechaNacimiento DATE,
 	idLicencia INTEGER REFERENCES licencias(idLicencia),
 	colorVehiculo VARCHAR(255),
-	numPlaca VARCHAR(10) UNIQUE,
+	numPlaca VARCHAR(10),
 	numPuertas INTEGER CHECK (numPuertas > 0 AND numPuertas < 5),
 	anio INTEGER CHECK(anio > 2014 AND anio < 2030),
 	numAsientos INTEGER CHECK (numAsientos > 0 AND numAsientos < 6),
 	idMarca INTEGER REFERENCES marcas(idMarca),
 	idModelo INTEGER REFERENCES modelos(idModelo),
-	CONSTRAINT fk_marca_placa FOREIGN KEY (idMarca, idModelo) REFERENCES modelos(idMarca, idModelo),
-	
+	CONSTRAINT FK_PLACA_MARCA FOREIGN KEY (idMarca, idModelo) REFERENCES modelos(idMarca, idModelo),
 );
 
 --ya YA
@@ -146,6 +145,7 @@ CREATE TABLE conductores(
 	idUsuario INTEGER REFERENCES usuarios(idUsuario),
 	numPlaca VARCHAR(10) REFERENCES vehiculos(numPlaca),
 	idCuenta INTEGER REFERENCES CuentasConductores(idCuentaConductor),
+	idSolicitud INTEGER REFERENCES solicitudes(idSolicitud),
 	disponible BIT
 );
 
@@ -305,7 +305,7 @@ CREATE TABLE puntosEmision(
 	idTipoDocumento INTEGER REFERENCES tiposDocumentos(idTipoDocumento),
 	idRangoEmision INTEGER REFERENCES rangoEmision(idRangoEmision),
 	idEstablecimiento INTEGER REFERENCES establecimiento(idEstablecimiento),
-	CONSTRAINT FK_tipoDocumento_establecimiento FOREIGN KEY (idTipoDocumento, idEstablecimiento) REFERENCES establecimiento(idTipoDocumento, idEstablecimiento),
+	CONSTRAINT FK_TIPDOC_SI FOREIGN KEY (idTipoDocumento, idEstablecimiento) REFERENCES establecimiento(idTipoDocumento, idEstablecimiento),
 	UNIQUE(idTipoDocumento, idEstablecimiento, idPuntoEmision)
 );
 
@@ -351,6 +351,8 @@ INSERT INTO estados VALUES('Rechazada', 1);
 INSERT INTO estados VALUES('Cancelada', 1);
 INSERT INTO estados VALUES('Realizada', 1);
 INSERT INTO estados VALUES('En Proceso', 1);
+GO
+
 INSERT INTO marcas VALUES('Ford', 1);
 INSERT INTO marcas VALUES('Toyota', 1);
 INSERT INTO marcas VALUES('Nissan', 1);
@@ -359,44 +361,26 @@ INSERT INTO marcas VALUES('Hyundai', 1);
 INSERT INTO marcas VALUES('Kia', 1);
 INSERT INTO marcas VALUES('Volkswagen', 1);
 INSERT INTO marcas VALUES('Renault', 1);
-INSERT INTO marcas VALUES('Peugeot', 1);
 INSERT INTO marcas VALUES('Mazda', 1);
 INSERT INTO marcas VALUES('Suzuki', 1);
-INSERT INTO marcas VALUES('BMW', 1);
 GO
 
 INSERT INTO modelos VALUES('Focus', 1, 1);
 INSERT INTO modelos VALUES('Fiesta', 1, 1);
-INSERT INTO modelos VALUES('Corolla', 1, 1);
-INSERT INTO modelos VALUES('Camry', 2, 2);
-INSERT INTO modelos VALUES('Yaris', 2, 2);
-INSERT INTO modelos VALUES('Sentra', 2, 2);
-INSERT INTO modelos VALUES('Civic', 2, 2);
-INSERT INTO modelos VALUES('Fit', 3, 3);
-INSERT INTO modelos VALUES('Tucson', 3, 3);
-INSERT INTO modelos VALUES('Elantra', 3, 3);
-INSERT INTO modelos VALUES('Accent', 4, 4);
-INSERT INTO modelos VALUES('Picanto', 4, 4);
-INSERT INTO modelos VALUES('JETTA', 5, 5);
-INSERT INTO modelos VALUES('Clio', 5, 5);
-INSERT INTO modelos VALUES('Pegout', 5, 5);
-GO
-
-INSERT INTO modelos VALUES('Focus', 1, 1);
-INSERT INTO modelos VALUES('Fiesta', 1, 1);
-INSERT INTO modelos VALUES('Corolla', 1, 1);
-INSERT INTO modelos VALUES('Camry', 2, 2);
-INSERT INTO modelos VALUES('Yaris', 2, 2);
-INSERT INTO modelos VALUES('Sentra', 2, 2);
-INSERT INTO modelos VALUES('Civic', 2, 2);
-INSERT INTO modelos VALUES('Fit', 3, 3);
-INSERT INTO modelos VALUES('Tucson', 3, 3);
-INSERT INTO modelos VALUES('Elantra', 3, 3);
-INSERT INTO modelos VALUES('Accent', 4, 4);
-INSERT INTO modelos VALUES('Picanto', 4, 4);
-INSERT INTO modelos VALUES('JETTA', 5, 5);
-INSERT INTO modelos VALUES('Clio', 5, 5);
-INSERT INTO modelos VALUES('Pegout', 5, 5);
+INSERT INTO modelos VALUES('Corolla', 2, 1);
+INSERT INTO modelos VALUES('Camry', 2, 1);
+INSERT INTO modelos VALUES('Yaris', 2, 1);
+INSERT INTO modelos VALUES('Sentra', 3, 1);
+INSERT INTO modelos VALUES('Civic', 4, 1);
+INSERT INTO modelos VALUES('Fit', 4, 1);
+INSERT INTO modelos VALUES('Elantra', 5, 1);
+INSERT INTO modelos VALUES('Accent', 5, 1);
+INSERT INTO modelos VALUES('Tucson', 5, 1);
+INSERT INTO modelos VALUES('Picanto', 6, 1);
+INSERT INTO modelos VALUES('JETTA', 7, 1);
+INSERT INTO modelos VALUES('Clio', 8, 1);
+INSERT INTO modelos VALUES('3', 9, 1);
+INSERT INTO modelos VALUES('Swift', 9, 1);
 GO
 
 INSERT INTO roles VALUES('Administrador', 'Administrador del sistema');
@@ -412,6 +396,8 @@ INSERT INTO tiposFotografias VALUES('Foto Persona', 1);
 INSERT INTO tiposFotografias VALUES('Foto Confirmacion', 1);
 
 SELECT * FROM tiposFotografias;
+
+SELECT * FROM puntosEmision;
 
 
 INSERT INTO movimientos VALUES('Entrada', 1);
@@ -431,12 +417,10 @@ INSERT INTO Correos VALUES('uber@gmail.com', 1, 1)
 INSERT INTO Sucursales VALUES('Sucursal 1','Col Vista Hermosa', 1);
 GO
 SELECT * FROM usuariosRoles;
+SELECT * FROM usuarios;
+SELECT * FROM personas;
+SELECT * FROM telefonosUsuarios;
 
-INSERT INTO personas VALUES('0801200206928', 'Cristhian', 'David', 'Ordoniez', 'Lopez');
-INSERT INTO usuarios VALUES('crisadmin@correo.com', '1234', 2, 2, 1, 1);
-INSERT INTO telefonosUsuarios VALUES ('22237877', 1);
-INSERT INTO usuariosRoles VALUES(1,2),(1,1)
-GO
 --Triguer que cuando se inserta un nuevo usuario se le asigna un nuevo rol
 
 CREATE or ALTER TRIGGER T_usuarios_roles 
@@ -448,6 +432,17 @@ BEGIN
     SELECT i.idUsuario, 3
     FROM inserted i;
 END;
+
+--Ingresar un usuario administrador
+
+INSERT INTO personas VALUES('08012002069270', 'Cristhian', 'David', 'Ordoniez', 'Lopez');
+GO
+INSERT INTO usuarios VALUES('crisadmin2@correo.com', '1234', 2, 2, 1, 1);
+GO
+INSERT INTO telefonosUsuarios VALUES ('22237889', 1);
+GO
+INSERT INTO usuariosRoles VALUES(1,2),(1,1)
+GO
 
 --procedimiento almacenado para confirmar si un usuario existe o no
 CREATE or ALTER PROCEDURE VerificarUsuario
@@ -470,16 +465,152 @@ BEGIN
         SET @existe = 0;
     END
 END;
+GO
 
 --fIN DEL PROCEDIMIENTO ALMACENADO
 
---Uso del procedimiento almacenado
-DECLARE @existe BIT;
-EXEC VerificarUsuario
-    @correo = 'crisadmin@correo.com',
-    @contraseña = '1234',
-    @existe = @existe OUTPUT;
-SELECT @existe AS ExisteUsuario;
---Fin del procedimiento Almacenado
-
 SELECT * FROM usuarios;
+--Triguer para almacenar licencias, solicitud y fotos de solicitud
+--CREATE or ALTER TRIGGER T_LICENCIA_SOLICITUD 
+--ON licencias
+--AFTER INSERT
+--AS	
+--BEGIN
+    --INSERT INTO solicitudes(idRol, idUsuario,fechaNacimiento, idLicencia, colorVehiculo, numPlaca, numPuertas, anio, numAsientos)
+    --SELECT i.idLicencia, 3
+  --  FROM inserted i;
+--END;
+
+--PROCEDIMIENTO ALMACENADO PARA INGRESAR licencias y solictudes y fotografias
+CREATE OR ALTER PROC P_LICENCIAS_SOLICITUD_FOTOGRAFIAS
+	@licencia VARCHAR(255),
+    @fechaVencimiento DATE,
+    @idUsuario INTEGER,
+    @fechaNacimiento DATE,
+    @colorVehiculo VARCHAR(255),
+    @numPlaca VARCHAR(10),
+    @numPuertas INTEGER,
+    @anio INTEGER,
+    @numAsientos INTEGER,
+    @idmarca INTEGER,
+    @idmodelo INTEGER,
+	@fotoLicencia TEXT,
+	@fotoVehiculo TEXT,
+	@fotoPersona TEXT
+AS
+BEGIN
+	BEGIN TRANSACTION;
+		BEGIN TRY 
+			 -- Insertar en la tabla licencias
+			INSERT INTO licencias (licencia, fechaVencimiento)
+			VALUES (@licencia, @fechaVencimiento);
+			-- Obtener el último idLicencia insertado
+			DECLARE @ultimaLicencia INTEGER;
+			SET @ultimaLicencia = SCOPE_IDENTITY();
+			--Almacenar la solicitud
+			INSERT INTO solicitudes
+			VALUES(
+				@idUsuario,
+				@fechaNacimiento,
+				@ultimaLicencia,
+				@colorVehiculo,
+				@numPlaca,
+				@numPuertas,
+				@anio,
+				@numAsientos,
+				@idmarca,
+				@idmodelo
+			);
+			--Almacenar el id de la solicitud
+			DECLARE @ultimaSolicitud INTEGER;
+			SET @ultimaSolicitud = SCOPE_IDENTITY();
+			--Ingresar fotokgrafias segun solicitud
+			INSERT INTO fotografiasSolicitud VALUES
+			(2, @ultimaSolicitud, @fotoLicencia),
+			(3,@ultimaSolicitud, @fotoVehiculo),
+			(4, @ultimaSolicitud, @fotoPersona);
+			        -- Si todo sale bien, se confirma la transacción
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Si ocurre un error, se revierte la transacción
+        ROLLBACK TRANSACTION;
+        -- Opcional: Puedes lanzar el error o manejarlo de otra forma
+        THROW;
+    END CATCH
+END;
+---fIN DEL PROCEDIMIENTO ALMACENADO	
+
+SELECT * FROM fotografiasSolicitud;
+
+BEGIN
+	BEGIN TRANSACTION;
+		BEGIN TRY 
+			 -- Insertar en la tabla licencias
+			INSERT INTO licencias (licencia, fechaVencimiento)
+			VALUES (@licencia, @fechaVencimiento);
+			-- Obtener el último idLicencia insertado
+			DECLARE @ultimaLicencia INTEGER;
+			SET @ultimaLicencia = SCOPE_IDENTITY();
+			INSERT INTO solicitudes
+			VALUES(
+				@idUsuario,
+				@fechaNacimiento,
+				@ultimaLicencia,
+				@colorVehiculo,
+				@numPlaca,
+				@numPuertas,
+				@anio,
+				@numAsientos,
+				@idmarca,
+				@idmodelo
+			);
+			        -- Si todo sale bien, se confirma la transacción
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Si ocurre un error, se revierte la transacción
+        ROLLBACK TRANSACTION;
+        -- Opcional: Puedes lanzar el error o manejarlo de otra forma
+        THROW;
+    END CATCH
+END;
+---fIN DEL PROCEDIMIENTO ALMACENADO	
+
+--Prueba de ingresar una nueva solictud
+EXEC P_LICENCIAS_SOLICITUD_FOTOGRAFIAS
+    @licencia = 'ABC123456789',
+    @fechaVencimiento = '2025-12-31',
+    @idUsuario = 3,
+    @fechaNacimiento = '1990-01-01',
+    @colorVehiculo = 'Rojo',
+    @numPlaca = 'XYZ9876129',
+    @numPuertas = 4,
+    @anio = 2020,
+    @numAsientos = 5,
+    @idmarca = 1,
+    @idmodelo = 1,
+	@fotoLicencia = 'path/to/ppp.jpg',
+	@fotoVehiculo = 'path/to/sasa.jpg',
+	@fotoPersona = 'path/to/pppas.jpg';
+
+
+SELECT * FROM licencias;
+SELECT * FROM solicitudes;
+SELECT * FROM fotografiasSolicitud;
+SELECT * FROM tiposFotografias;
+
+--Trabajar despues de llenar solicitudes y sean aceptadas.
+--Procedimiento almacenado para llevar informacion especifica de conductores
+CREATE OR ALTER PROC p_Conductores_map
+AS	
+	--IF EXISTS (SELECT * FROM usuariosRoles where usuariosRoles.idRol = 2)
+	--SELECT u.idUsuario, u.latActual, u.lonActual,c.disponible FROM usuarios u
+	--INNER JOIN conductores c ON c.idUsuario = u.idUsuario;
+	SELECT * FROM usuarios;
+
+EXEC p_Conductores_map;
+
+	SELECT u.idUsuario, u.latActual, u.lonActual,c.disponible FROM usuarios u
+	INNER JOIN conductores c ON c.idUsuario = u.idUsuario;
+SELECT * FROM conductores;
