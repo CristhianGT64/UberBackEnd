@@ -545,12 +545,12 @@ END;
 
 --Prueba de ingresar una nueva solictud
 EXEC P_LICENCIAS_SOLI_FOTO
-    @licencia = 'ABC123456789',
+    @licencia = 'ABC1234563232',
     @fechaVencimiento = '2025-12-31',
-    @idUsuario = 1,
+    @idUsuario = 2,
     @fechaNacimiento = '1990-01-01',
     @colorVehiculo = 'Rojo',
-    @numPlaca = 'XYZ9876129',
+    @numPlaca = 'XYZ987612',
     @numPuertas = 4,
     @anio = 2020,
     @numAsientos = 5,
@@ -561,11 +561,18 @@ EXEC P_LICENCIAS_SOLI_FOTO
 	@fotoPersona = 'path/to/pppas.jpg';
 GO
 
+SELECT * FROM usuarios;
 
 SELECT * FROM licencias;
 SELECT * FROM solicitudes;
 SELECT * FROM fotografiasSolicitud;
 SELECT * FROM tiposFotografias;
+
+SELECT * FROM marcas;
+SELECT * FROM modelos;
+
+SELECT ma.idMarca, ma.nombre nombreMarca,mo.idModelo nombreModelo, mo.nombre, mo.idMarca ModeloMarca FROM modelos mo
+	INNER JOIN marcas ma ON ma.idMarca = mo.idMarca;
 
 
 --Trabajar despues de llenar solicitudes y sean aceptadas.
