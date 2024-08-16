@@ -432,6 +432,7 @@ BEGIN
     SELECT i.idUsuario, 3
     FROM inserted i;
 END;
+GO
 
 --Ingresar un usuario administrador
 
@@ -480,9 +481,10 @@ SELECT * FROM usuarios;
     --SELECT i.idLicencia, 3
   --  FROM inserted i;
 --END;
+SELECT * FROM solicitudes;
 
 --PROCEDIMIENTO ALMACENADO PARA INGRESAR licencias y solictudes y fotografias
-CREATE OR ALTER PROC P_LICENCIAS_SOLICITUD_FOTOGRAFIAS
+CREATE OR ALTER PROC P_LICENCIAS_SOLI_FOTO
 	@licencia VARCHAR(255),
     @fechaVencimiento DATE,
     @idUsuario INTEGER,
@@ -492,8 +494,8 @@ CREATE OR ALTER PROC P_LICENCIAS_SOLICITUD_FOTOGRAFIAS
     @numPuertas INTEGER,
     @anio INTEGER,
     @numAsientos INTEGER,
-    @idmarca INTEGER,
-    @idmodelo INTEGER,
+    @idMarca INTEGER,
+    @idModelo INTEGER,
 	@fotoLicencia TEXT,
 	@fotoVehiculo TEXT,
 	@fotoPersona TEXT
@@ -502,7 +504,7 @@ BEGIN
 	BEGIN TRANSACTION;
 		BEGIN TRY 
 			 -- Insertar en la tabla licencias
-			INSERT INTO licencias (licencia, fechaVencimiento)
+			INSERT INTO licencias
 			VALUES (@licencia, @fechaVencimiento);
 			-- Obtener el último idLicencia insertado
 			DECLARE @ultimaLicencia INTEGER;
@@ -518,8 +520,8 @@ BEGIN
 				@numPuertas,
 				@anio,
 				@numAsientos,
-				@idmarca,
-				@idmodelo
+				@idMarca,
+				@idModelo
 			);
 			--Almacenar el id de la solicitud
 			DECLARE @ultimaSolicitud INTEGER;
@@ -541,47 +543,11 @@ BEGIN
 END;
 ---fIN DEL PROCEDIMIENTO ALMACENADO	
 
-SELECT * FROM fotografiasSolicitud;
-
-BEGIN
-	BEGIN TRANSACTION;
-		BEGIN TRY 
-			 -- Insertar en la tabla licencias
-			INSERT INTO licencias (licencia, fechaVencimiento)
-			VALUES (@licencia, @fechaVencimiento);
-			-- Obtener el último idLicencia insertado
-			DECLARE @ultimaLicencia INTEGER;
-			SET @ultimaLicencia = SCOPE_IDENTITY();
-			INSERT INTO solicitudes
-			VALUES(
-				@idUsuario,
-				@fechaNacimiento,
-				@ultimaLicencia,
-				@colorVehiculo,
-				@numPlaca,
-				@numPuertas,
-				@anio,
-				@numAsientos,
-				@idmarca,
-				@idmodelo
-			);
-			        -- Si todo sale bien, se confirma la transacción
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        -- Si ocurre un error, se revierte la transacción
-        ROLLBACK TRANSACTION;
-        -- Opcional: Puedes lanzar el error o manejarlo de otra forma
-        THROW;
-    END CATCH
-END;
----fIN DEL PROCEDIMIENTO ALMACENADO	
-
 --Prueba de ingresar una nueva solictud
-EXEC P_LICENCIAS_SOLICITUD_FOTOGRAFIAS
+EXEC P_LICENCIAS_SOLI_FOTO
     @licencia = 'ABC123456789',
     @fechaVencimiento = '2025-12-31',
-    @idUsuario = 3,
+    @idUsuario = 1,
     @fechaNacimiento = '1990-01-01',
     @colorVehiculo = 'Rojo',
     @numPlaca = 'XYZ9876129',
@@ -593,12 +559,14 @@ EXEC P_LICENCIAS_SOLICITUD_FOTOGRAFIAS
 	@fotoLicencia = 'path/to/ppp.jpg',
 	@fotoVehiculo = 'path/to/sasa.jpg',
 	@fotoPersona = 'path/to/pppas.jpg';
+GO
 
 
 SELECT * FROM licencias;
 SELECT * FROM solicitudes;
 SELECT * FROM fotografiasSolicitud;
 SELECT * FROM tiposFotografias;
+
 
 --Trabajar despues de llenar solicitudes y sean aceptadas.
 --Procedimiento almacenado para llevar informacion especifica de conductores

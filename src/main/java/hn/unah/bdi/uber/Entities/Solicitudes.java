@@ -54,9 +54,6 @@ public class Solicitudes {
     @Column(name = "numasientos")
     private Integer numasientos;
 
-    @OneToMany(mappedBy = "solicitud")
-    private List <FotografiasSolicitud> fotografiaSolicitud;
-
     @OneToOne
     @JoinColumn(name = "idmarca", referencedColumnName =  "idmarca")
     private Marca marca;
@@ -64,4 +61,7 @@ public class Solicitudes {
     @OneToOne
     @JoinColumn(name = "idmodelo", referencedColumnName =  "idmodelo")
     private Modelos modelo;
+
+    @OneToMany(mappedBy = "solicitud")
+    private List <FotografiasSolicitud> fotografiaSolicitud;
 }
