@@ -106,7 +106,7 @@ CREATE TABLE solicitudes(
 	numAsientos INTEGER CHECK (numAsientos > 0 AND numAsientos < 6),
 	idMarca INTEGER REFERENCES marcas(idMarca),
 	idModelo INTEGER REFERENCES modelos(idModelo),
-	CONSTRAINT FK_PLACA_MARCA FOREIGN KEY (idMarca, idModelo) REFERENCES modelos(idMarca, idModelo),
+	CONSTRAINT FK_PLACA_MARCA FOREIGN KEY (idMarca, idModelo) REFERENCES modelos(idMarca, idModelo)
 );
 
 --ya YA
@@ -169,7 +169,7 @@ CREATE TABLE verificacionesSolicitudes(
 	idSolicitud INTEGER REFERENCES solicitudes(idSolicitud) UNIQUE,
 	idAdministrador INTEGER REFERENCES administradores(idAdministrador),
 	idEstado INTEGER REFERENCES estados(idEstado),
-	fechaRevision TIMESTAMP,
+	fechaRevision DATE,
 	observaciones TEXT
 );
 
@@ -420,7 +420,7 @@ SELECT * FROM usuariosRoles;
 SELECT * FROM usuarios;
 SELECT * FROM personas;
 SELECT * FROM telefonosUsuarios;
-
+GO
 --Triguer que cuando se inserta un nuevo usuario se le asigna un nuevo rol
 
 CREATE or ALTER TRIGGER T_usuarios_roles 
@@ -443,6 +443,8 @@ GO
 INSERT INTO telefonosUsuarios VALUES ('22237889', 1);
 GO
 INSERT INTO usuariosRoles VALUES(1,2),(1,1)
+GO
+INSERT INTO administradores VALUES(1);
 GO
 
 --procedimiento almacenado para confirmar si un usuario existe o no
@@ -467,21 +469,6 @@ BEGIN
     END
 END;
 GO
-
---fIN DEL PROCEDIMIENTO ALMACENADO
-
-SELECT * FROM usuarios;
---Triguer para almacenar licencias, solicitud y fotos de solicitud
---CREATE or ALTER TRIGGER T_LICENCIA_SOLICITUD 
---ON licencias
---AFTER INSERT
---AS	
---BEGIN
-    --INSERT INTO solicitudes(idRol, idUsuario,fechaNacimiento, idLicencia, colorVehiculo, numPlaca, numPuertas, anio, numAsientos)
-    --SELECT i.idLicencia, 3
-  --  FROM inserted i;
---END;
-SELECT * FROM solicitudes;
 
 --PROCEDIMIENTO ALMACENADO PARA INGRESAR licencias y solictudes y fotografias
 CREATE OR ALTER PROC P_LICENCIAS_SOLI_FOTO
@@ -531,6 +518,11 @@ BEGIN
 			(2, @ultimaSolicitud, @fotoLicencia),
 			(3,@ultimaSolicitud, @fotoVehiculo),
 			(4, @ultimaSolicitud, @fotoPersona);
+
+			--Llenar la tabla de verificacionde solicitides
+			INSERT INTO verificacionesSolicitudes
+			VALUES (@ultimaSolicitud,null,1,null,null);
+
 			        -- Si todo sale bien, se confirma la transacción
         COMMIT TRANSACTION;
     END TRY
@@ -564,15 +556,58 @@ GO
 SELECT * FROM usuarios;
 
 SELECT * FROM licencias;
-SELECT * FROM solicitudes;
 SELECT * FROM fotografiasSolicitud;
 SELECT * FROM tiposFotografias;
+SELECT * FROM verificacionesSolicitudes;
+SELECT * FROM solicitudes;
+SELECT * FROM administradores;
+SELECT * FROM estados;
 
-SELECT * FROM marcas;
-SELECT * FROM modelos;
+INSERT INTO administradores VALUES(1);
+INSERT INTO verificacionesSolicitudes VALUES (5,null,1,null,null);
+UPDATE verificacionesSolicitudes SET idAdministrador = 1 WHERE idVerificacionSolicitud = 1;
+UPDATE verificacionesSolicitudes SET fechaRevision = GETDATE() WHERE idVerificacionSolicitud = 1;
+GO
 
-SELECT ma.idMarca, ma.nombre nombreMarca,mo.idModelo nombreModelo, mo.nombre, mo.idMarca ModeloMarca FROM modelos mo
-	INNER JOIN marcas ma ON ma.idMarca = mo.idMarca;
+--Procedimiento almacenado para traer un detalle mas vistoso de las solicitudes
+CREATE OR ALTER PROC P_DETALLES_SOL
+AS
+	BEGIN
+		SELECT S.idSolicitud ,u.correo, p.nombre1 + ' ' + p.nombre2+ ' ' + p.apellido1 + ' ' + p.apellido2 nombreCompleto,
+		t.numero, s.fechaNacimiento, l.licencia, l.fechaVencimiento, s.colorVehiculo,
+		s.numPlaca, s.numPuertas, s.anio, s.numAsientos, ma.nombre nombreMarca, mo.nombre nombreModelo FROM solicitudes s
+		INNER JOIN usuarios u ON u.idUsuario = s.idUsuario
+		INNER JOIN telefonosUsuarios t ON t.idPersona = u.idPersona
+		INNER JOIN personas p ON u.idPersona = p.idPersona
+		INNER JOIN licencias l ON l.idLicencia = s.idLicencia
+		INNER JOIN marcas ma ON ma.idMarca = s.idMarca
+		INNER JOIN modelos mo ON mo.idModelo = s.idModelo
+		WHERE EXISTS (SELECT * FROM verificacionesSolicitudes WHERE idEstado = 1);
+	END;
+
+		EXEC P_DETALLES_SOL;
+
+GO
+
+--Procedimiento almacenado que trae
+CREATE OR ALTER PROC P_FOTOGRAFIAS_PENDIENTES
+AS
+	BEGIN
+		SELECT fs.idTipoFotografia, fs.idSolicitud, fs.ubicacion FROM fotografiasSolicitud fs
+		where EXISTS (SELECT * FROM verificacionesSolicitudes WHERE idEstado = 1);
+	END;
+
+		EXEC P_FOTOGRAFIAS_PENDIENTES;
+
+
+		
+
+
+
+
+SELECT * FROM verificacionesSolicitudes;
+SELECT * FROM usuarios;
+
 
 
 --Trabajar despues de llenar solicitudes y sean aceptadas.

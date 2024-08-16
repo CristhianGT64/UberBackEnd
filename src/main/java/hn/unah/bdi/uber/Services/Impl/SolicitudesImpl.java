@@ -1,11 +1,17 @@
 package hn.unah.bdi.uber.Services.Impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import hn.unah.bdi.uber.Entities.Solicitudes;
 import hn.unah.bdi.uber.Services.SolicitudesService;
+import hn.unah.bdi.uber.dtos.MarcaDto;
+import hn.unah.bdi.uber.dtos.detalleFotografiaSolicitud;
+import hn.unah.bdi.uber.dtos.detalleSolicitud;
 
 @Service
 public class SolicitudesImpl implements SolicitudesService{
@@ -49,6 +55,19 @@ public class SolicitudesImpl implements SolicitudesService{
         }
 
         return false;
+    }
+
+    @Override
+    public List<detalleSolicitud> detallesSolicitud() {
+        String query = "EXEC P_DETALLES_SOL";
+
+        return this.jdbcTemplate.query(query, new BeanPropertyRowMapper<detalleSolicitud>(detalleSolicitud.class));
+    }
+
+    @Override
+    public List<detalleFotografiaSolicitud> detalleFotografiaSolicituds() {
+        String query = "EXEC P_FOTOGRAFIAS_PENDIENTES";
+        return this.jdbcTemplate.query(query, new BeanPropertyRowMapper<detalleFotografiaSolicitud>(detalleFotografiaSolicitud.class));
     }
     
 }
