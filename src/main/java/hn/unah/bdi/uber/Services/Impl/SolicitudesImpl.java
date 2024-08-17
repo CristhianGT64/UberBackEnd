@@ -80,12 +80,13 @@ public class SolicitudesImpl implements SolicitudesService{
             Integer respueta = this.jdbcTemplate.update(query, verificacionSolicitud.getAdministrador().getIdAdministrador(), verificacionSolicitud.getSolicitud().getIdSolicitud(),
             verificacionSolicitud.getObservaciones());
             if (respueta != 0) {
-            return true;
-            }
+                return true;
+                }
         } catch (Exception e) {
             return false;
         }
         return false;
+
     }
 
     @Override
@@ -93,9 +94,9 @@ public class SolicitudesImpl implements SolicitudesService{
         String query = "EXEC P_CANCELAR_SOLICITUDES @idUsuario = ?, @idSolicitud = ?, @descripcion = ?;";
 
         try {
-            Integer respueta = this.jdbcTemplate.update(query, verificacionSolicitud.getAdministrador().getIdAdministrador(), verificacionSolicitud.getSolicitud().getIdSolicitud(),
+            Integer respuesta = this.jdbcTemplate.update(query, verificacionSolicitud.getAdministrador().getIdAdministrador(), verificacionSolicitud.getSolicitud().getIdSolicitud(),
             verificacionSolicitud.getObservaciones());
-            if (respueta != 0) {
+            if (respuesta != 0) {
             return true;
             }
         } catch (Exception e) {

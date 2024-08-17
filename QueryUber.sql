@@ -564,17 +564,22 @@ BEGIN
 	BEGIN TRANSACTION;
 		BEGIN TRY 
 			DECLARE @idAdministrador INTEGER;
-			SET @idAdministrador =(SELECT idAdministrador FROM administradores WHERE idUsuario = @idUsuario);
+			            SET @idAdministrador = (SELECT TOP 1 idAdministrador 
+                                    FROM administradores 
+                                    WHERE idUsuario = @idUsuario 
+                                    ORDER BY idAdministrador);
 
 			Declare @usuario INTEGER
-			SET @usuario = (SELECT s.idUsuario FROM solicitudes s
-			INNER JOIN verificacionesSolicitudes sv ON s.idSolicitud = sv.idSolicitud
-			WHERE (s.idSolicitud = @idSolicitud AND sv.idEstado = 1))
-
-			UPDATE verificacionesSolicitudes SET idAdministrador = @idAdministrador WHERE idSolicitud = @idSolicitud;
-			UPDATE verificacionesSolicitudes SET fechaRevision = GETDATE() WHERE idSolicitud = @idSolicitud;
-			UPDATE verificacionesSolicitudes SET observaciones = @descripcion WHERE idSolicitud = @idSolicitud;
-			UPDATE verificacionesSolicitudes SET idEstado = 2 WHERE idSolicitud = @idSolicitud;
+            SET @usuario = (SELECT TOP 1 s.idUsuario 
+                            FROM solicitudes s
+                            INNER JOIN verificacionesSolicitudes sv ON s.idSolicitud = sv.idSolicitud
+                            WHERE s.idSolicitud = @idSolicitud AND sv.idEstado = 1);
+			IF @usuario IS NOT NULL
+			UPDATE verificacionesSolicitudes SET idAdministrador = @idAdministrador,
+			fechaRevision = GETDATE(),
+			observaciones = @descripcion,
+			idEstado = 2
+			WHERE idSolicitud = @idSolicitud;
 
 			INSERT INTO usuariosRoles VALUES (@usuario,2);
 
@@ -601,7 +606,10 @@ BEGIN
 	BEGIN TRANSACTION;
 		BEGIN TRY 
 			DECLARE @idAdministrador INTEGER;
-			SET @idAdministrador =(SELECT idAdministrador FROM administradores WHERE idUsuario = @idUsuario);
+			 SET @idAdministrador = (SELECT TOP 1 idAdministrador 
+                                    FROM administradores 
+                                    WHERE idUsuario = @idUsuario 
+                                    ORDER BY idAdministrador);
 
 			UPDATE verificacionesSolicitudes SET idAdministrador = @idAdministrador WHERE idSolicitud = @idSolicitud;
 			UPDATE verificacionesSolicitudes SET fechaRevision = GETDATE() WHERE idSolicitud = @idSolicitud;
@@ -681,6 +689,10 @@ BEGIN
     END CATCH
 END;
 --fin de generacion de factura
+GO
+
+
+
 
 --prueba generar factura
 EXEC P_NUMERO_FACTURA;
@@ -730,7 +742,6 @@ GO
 SELECT * FROM verificacionesSolicitudes;
 SELECT * FROM usuarios;
 
-CREATE 
 
 
 
@@ -753,42 +764,3 @@ SELECT * FROM conductores;
 SELECT * FROM numerosFacturas;
 
 EXEC P_NUMERO_FACTURA;
-
-CREATE OR ALTER PROC P_NUMERO_FACTURA
-AS
-BEGIN
-	BEGIN TRANSACTION;
-	BEGIN TRY 
-		-- Variables para almacenar los valores que se usarán en la inserción
-		DECLARE @puntoEmision VARCHAR(255);
-		DECLARE @establecimiento VARCHAR(255);
-		DECLARE @tipoDocumeto VARCHAR(255);
-		DECLARE @numCorrelativo INT;
-
-		-- Obtener los valores individuales para la inserción
-		SET @puntoEmision = (SELECT FORMAT(pe.numero,'000') FROM puntosEmision pe);
-		SET @establecimiento = (SELECT FORMAT(e.idEstablecimiento, '000') FROM establecimiento e);
-		SET @tipoDocumeto = (SELECT FORMAT(pe.idTipoDocumento,'00') FROM puntosEmision pe);
-
-		-- Calcular el siguiente número correlativo de manera segura
-		SELECT @numCorrelativo = COUNT(*) + 1 
-		FROM numerosFacturas nf 
-		WITH (UPDLOCK, HOLDLOCK);
-
-		-- Generar el número completo formateado
-		DECLARE @numeroFormulado VARCHAR(255);
-		SET @numeroFormulado = @puntoEmision + '-' + @establecimiento + ' ' + @tipoDocumeto + '-' + FORMAT(@numCorrelativo, '00000000');
-
-		-- Insertar en la tabla numerosFacturas
-		INSERT INTO numerosFacturas (numeroFormulado, numCorrelativo, idTipoDocumento, idEstablecimiento, idPuntoEmision)
-		VALUES (@numeroFormulado, @numCorrelativo, 1, 1, 1);
-
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        -- Si ocurre un error, se revierte la transacción
-        ROLLBACK TRANSACTION;
-        -- Opcional: Puedes lanzar el error o manejarlo de otra forma
-        THROW;
-    END CATCH
-END;
