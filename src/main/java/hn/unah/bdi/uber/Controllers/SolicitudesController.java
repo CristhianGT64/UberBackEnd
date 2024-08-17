@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import hn.unah.bdi.uber.Entities.Solicitudes;
+import hn.unah.bdi.uber.Entities.VerificacionSolicitudes;
 import hn.unah.bdi.uber.Services.Impl.SolicitudesImpl;
 import hn.unah.bdi.uber.dtos.ModeloDto;
 import hn.unah.bdi.uber.dtos.detalleFotografiaSolicitud;
@@ -37,5 +38,16 @@ public class SolicitudesController {
     public List<detalleFotografiaSolicitud> TraerFotografiasDetalles() {
         return this.solicitudesImpl.detalleFotografiaSolicituds();
     }
+
+    @PostMapping("/solicitus/AutorizarSolicitud")
+    public Boolean AutorizarSolicitud(@RequestBody VerificacionSolicitudes solicitud) {
+        return this.solicitudesImpl.AceptarSolicitudes(solicitud);
+    }
+
+    @PostMapping("/solicitus/denegarSolictud")
+    public Boolean denegarSolicitud(@RequestBody VerificacionSolicitudes solicitud) {
+        return this.solicitudesImpl.rechazarSolicitudes(solicitud);
+    }
+    
     
 }

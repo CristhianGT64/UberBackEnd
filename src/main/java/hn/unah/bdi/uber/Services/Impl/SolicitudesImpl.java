@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import hn.unah.bdi.uber.Entities.Solicitudes;
+import hn.unah.bdi.uber.Entities.VerificacionSolicitudes;
 import hn.unah.bdi.uber.Services.SolicitudesService;
 import hn.unah.bdi.uber.dtos.MarcaDto;
 import hn.unah.bdi.uber.dtos.detalleFotografiaSolicitud;
@@ -68,6 +69,39 @@ public class SolicitudesImpl implements SolicitudesService{
     public List<detalleFotografiaSolicitud> detalleFotografiaSolicituds() {
         String query = "EXEC P_FOTOGRAFIAS_PENDIENTES";
         return this.jdbcTemplate.query(query, new BeanPropertyRowMapper<detalleFotografiaSolicitud>(detalleFotografiaSolicitud.class));
+    }
+
+    @Override
+    public Boolean AceptarSolicitudes(VerificacionSolicitudes verificacionSolicitud) {
+
+        String query = "EXEC P_ACEPTAR_SOLICITUDES @idUsuario = ?, @idSolicitud = ?, @descripcion = ?;";
+
+        try {
+            Integer respueta = this.jdbcTemplate.update(query, verificacionSolicitud.getAdministrador().getIdAdministrador(), verificacionSolicitud.getSolicitud().getIdSolicitud(),
+            verificacionSolicitud.getObservaciones());
+            if (respueta != 0) {
+            return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean rechazarSolicitudes(VerificacionSolicitudes verificacionSolicitud) {
+        String query = "EXEC P_CANCELAR_SOLICITUDES @idUsuario = ?, @idSolicitud = ?, @descripcion = ?;";
+
+        try {
+            Integer respueta = this.jdbcTemplate.update(query, verificacionSolicitud.getAdministrador().getIdAdministrador(), verificacionSolicitud.getSolicitud().getIdSolicitud(),
+            verificacionSolicitud.getObservaciones());
+            if (respueta != 0) {
+            return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
     
 }

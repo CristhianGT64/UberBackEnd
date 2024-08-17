@@ -313,7 +313,7 @@ CREATE TABLE puntosEmision(
 CREATE TABLE numerosFacturas(
 	idNumFactura INTEGER PRIMARY KEY IDENTITY(1,1),
 	numeroFormulado VARCHAR(255) UNIQUE,
-	numCorrelativo INTEGER UNIQUE,
+	numCorrelativo INTEGER,
 	--idNumCorrelativo INTEGER REFERENCES numCorrelativo(idNumCorrelativo),
 	idTipoDocumento INTEGER REFERENCES tiposDocumentos(idTipoDocumento),
 	idEstablecimiento INTEGER REFERENCES establecimiento(idEstablecimiento),
@@ -395,14 +395,15 @@ INSERT INTO rangoEmision VALUES(101, 200);
 INSERT INTO rangoEmision VALUES(301, 300);
 INSERT INTO tiposDocumentos VALUES(01, 'Factura', 1);
 INSERT INTO establecimiento VALUES(1, 01);
-INSERT INTO puntosEmision VALUES(001, 1, 01, 01, 1);
+INSERT INTO puntosEmision VALUES(1, 1, 1, 1);
 INSERT INTO metodosPagos VALUES('Efectivo', 1);
 INSERT INTO metodosPagos VALUES('Credito', 1);
 INSERT INTO empresa VALUES('Uber', 08012024123456);
 INSERT INTO cais VALUES('1234-5689', '12-12-2024', 1);
-INSERT INTO telefonosSucursales VALUES(1234-5689);
 INSERT INTO Correos VALUES('uber@gmail.com', 1, 1)
 INSERT INTO Sucursales VALUES('Sucursal 1','Col Vista Hermosa', 1);
+INSERT INTO telefonosSucursales VALUES(12345689,1,1);
+
 GO
 --Triguer que cuando se inserta un nuevo usuario se le asigna un nuevo rol
 CREATE or ALTER TRIGGER T_usuarios_roles 
@@ -428,6 +429,7 @@ INSERT INTO usuariosRoles VALUES(1,2),(1,1)
 GO
 INSERT INTO administradores VALUES(1);
 GO
+
 
 --procedimiento almacenado para confirmar si un usuario existe o no
 CREATE or ALTER PROCEDURE VerificarUsuario
@@ -552,10 +554,11 @@ GO
 		--EXEC P_FOTOGRAFIAS_PENDIENTES;
 
 
---PROCEDIMIENTO ALMACENADO PARA ACEPTAR SOLICITUDES
+--PROCEDIMIENTO ALMACENADO PARA ACEPTAR SOLICITUDES y roles
 CREATE OR ALTER PROC P_ACEPTAR_SOLICITUDES
     @idUsuario INTEGER,
-    @idSolicitud INTEGER
+    @idSolicitud INTEGER,
+	@descripcion TEXT
 AS
 BEGIN
 	BEGIN TRANSACTION;
@@ -563,10 +566,19 @@ BEGIN
 			DECLARE @idAdministrador INTEGER;
 			SET @idAdministrador =(SELECT idAdministrador FROM administradores WHERE idUsuario = @idUsuario);
 
+			Declare @usuario INTEGER
+			SET @usuario = (SELECT s.idUsuario FROM solicitudes s
+			INNER JOIN verificacionesSolicitudes sv ON s.idSolicitud = sv.idSolicitud
+			WHERE (s.idSolicitud = @idSolicitud AND sv.idEstado = 1))
+
 			UPDATE verificacionesSolicitudes SET idAdministrador = @idAdministrador WHERE idSolicitud = @idSolicitud;
 			UPDATE verificacionesSolicitudes SET fechaRevision = GETDATE() WHERE idSolicitud = @idSolicitud;
-			UPDATE verificacionesSolicitudes SET observaciones = 'Solicitud Aceptada' WHERE idSolicitud = @idSolicitud;
+			UPDATE verificacionesSolicitudes SET observaciones = @descripcion WHERE idSolicitud = @idSolicitud;
 			UPDATE verificacionesSolicitudes SET idEstado = 2 WHERE idSolicitud = @idSolicitud;
+
+			INSERT INTO usuariosRoles VALUES (@usuario,2);
+
+
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
@@ -582,7 +594,8 @@ GO
 --PROCEDIMIENTO ALMACENADO PARA CANCELAR SOLICITUDES
 CREATE OR ALTER PROC P_CANCELAR_SOLICITUDES
     @idUsuario INTEGER,
-    @idSolicitud INTEGER
+    @idSolicitud INTEGER,
+	@descripcion TEXT
 AS
 BEGIN
 	BEGIN TRANSACTION;
@@ -592,8 +605,9 @@ BEGIN
 
 			UPDATE verificacionesSolicitudes SET idAdministrador = @idAdministrador WHERE idSolicitud = @idSolicitud;
 			UPDATE verificacionesSolicitudes SET fechaRevision = GETDATE() WHERE idSolicitud = @idSolicitud;
-			UPDATE verificacionesSolicitudes SET observaciones = 'Solicitud no aceptada por documentacion o informacion invalida' WHERE idSolicitud = @idSolicitud;
+			UPDATE verificacionesSolicitudes SET observaciones = @descripcion WHERE idSolicitud = @idSolicitud;
 			UPDATE verificacionesSolicitudes SET idEstado = 3 WHERE idSolicitud = @idSolicitud;
+
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
@@ -614,19 +628,78 @@ AS
 BEGIN
     BEGIN
         INSERT INTO vehiculos
-        SELECT s.numPlaca, s.colorVehiculo, s.numPuertas,s.anio, s.numAsientos,s.idMarca, s.idModelo,  1
+		SELECT s.numPlaca, s.colorVehiculo, s.numPuertas,s.anio, s.numAsientos,s.idMarca, s.idModelo,  1
         FROM solicitudes s
         INNER JOIN verificacionesSolicitudes vs ON s.idSolicitud = vs.idSolicitud
+        WHERE vs.idEstado = 2;
+					--Almacenar el id de la solicitud
+		DECLARE @idVehiculo INTEGER;
+		SET @idVehiculo = SCOPE_IDENTITY();
+
+		INSERT INTO conductores
+        SELECT s.idUsuario,@idVehiculo, null, s.idSolicitud , 1
+        FROM solicitudes s
+		INNER JOIN verificacionesSolicitudes vs ON s.idSolicitud = vs.idSolicitud
         WHERE vs.idEstado = 2;
     END
 END;
 GO
 
+--PROCEDIMIENTO ALMACENADO PARA GENERAR NUMERO DE FACTURA
+CREATE OR ALTER PROC P_NUMERO_FACTURA
+AS
+BEGIN
+	BEGIN TRANSACTION;
+		BEGIN TRY 
+
+			DECLARE @puntoEmision VARCHAR(255);
+			SET @puntoEmision = (Select format(pe.numero,'000') from puntosEmision pe);
+
+			DECLARE @establecimiento VARCHAR(255);
+			SET @establecimiento = (Select format(e.idEstablecimiento, '000') from establecimiento e);
+
+			DECLARE @tipoDocumeto VARCHAR(255);
+			SET @tipoDocumeto = (Select format(pe.idTipoDocumento,'00') from puntosEmision pe);
+
+			DECLARE @numCorrelativo VARCHAR(255);
+			SET @numCorrelativo = (Select format(Count(*)+1, '00000000') From numerosFacturas nf);
+
+			Select format(pe.numero,'000') AS PuntodeEmision, format(e.idEstablecimiento, '000') AS Establecimiento,
+			format(pe.idTipoDocumento,'00') AS TipoDocumento, (Select format(Count(nf.idNumFactura)+1, '00000000') From numerosFacturas nf) AS NumeroFactura 
+			From puntosEmision pe, establecimiento e
+
+			INSERT INTO numerosFacturas VALUES (@puntoEmision + '-' + @establecimiento + ' ' + @tipoDocumeto + '-' + @numCorrelativo,
+			@numCorrelativo, 1,1,1)
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Si ocurre un error, se revierte la transacción
+        ROLLBACK TRANSACTION;
+        -- Opcional: Puedes lanzar el error o manejarlo de otra forma
+        THROW;
+    END CATCH
+END;
+--fin de generacion de factura
+
+--prueba generar factura
+EXEC P_NUMERO_FACTURA;
+
+SELECT * FROM numerosFacturas;
+
+SeLECT * FROM numerosFacturas;
+
+EXEC P_ACEPTAR_SOLICITUDES 
+		@idUsuario = 1,
+		@idSolicitud = 1,
+		@descripcion = 'Agregado correctamenet';
+GO
+
 EXEC P_CANCELAR_SOLICITUDES 
 		@idUsuario = 1,
-		@idSolicitud = 8;
+		@idSolicitud = 1,
+		@descripcion = 'Agregado correctamenet';
 
-GO
 
 SELECT * FROM usuarios;
 
@@ -639,6 +712,8 @@ SELECT * FROM vehiculos;
 SELECT * FROM conductores;
 SELECT * FROM estados;
 SELECT * FROM administradores;
+SELECT * FROM usuariosRoles;
+
 
 INSERT INTO administradores VALUES(1);
 INSERT INTO verificacionesSolicitudes VALUES (5,null,1,null,null);
@@ -649,10 +724,6 @@ UPDATE verificacionesSolicitudes SET idEstado = 1 WHERE idVerificacionSolicitud 
 
 
 GO
-
-
-		
-
 
 
 
@@ -678,3 +749,46 @@ EXEC p_Conductores_map;
 	SELECT u.idUsuario, u.latActual, u.lonActual,c.disponible FROM usuarios u
 	INNER JOIN conductores c ON c.idUsuario = u.idUsuario;
 SELECT * FROM conductores;
+
+SELECT * FROM numerosFacturas;
+
+EXEC P_NUMERO_FACTURA;
+
+CREATE OR ALTER PROC P_NUMERO_FACTURA
+AS
+BEGIN
+	BEGIN TRANSACTION;
+	BEGIN TRY 
+		-- Variables para almacenar los valores que se usarán en la inserción
+		DECLARE @puntoEmision VARCHAR(255);
+		DECLARE @establecimiento VARCHAR(255);
+		DECLARE @tipoDocumeto VARCHAR(255);
+		DECLARE @numCorrelativo INT;
+
+		-- Obtener los valores individuales para la inserción
+		SET @puntoEmision = (SELECT FORMAT(pe.numero,'000') FROM puntosEmision pe);
+		SET @establecimiento = (SELECT FORMAT(e.idEstablecimiento, '000') FROM establecimiento e);
+		SET @tipoDocumeto = (SELECT FORMAT(pe.idTipoDocumento,'00') FROM puntosEmision pe);
+
+		-- Calcular el siguiente número correlativo de manera segura
+		SELECT @numCorrelativo = COUNT(*) + 1 
+		FROM numerosFacturas nf 
+		WITH (UPDLOCK, HOLDLOCK);
+
+		-- Generar el número completo formateado
+		DECLARE @numeroFormulado VARCHAR(255);
+		SET @numeroFormulado = @puntoEmision + '-' + @establecimiento + ' ' + @tipoDocumeto + '-' + FORMAT(@numCorrelativo, '00000000');
+
+		-- Insertar en la tabla numerosFacturas
+		INSERT INTO numerosFacturas (numeroFormulado, numCorrelativo, idTipoDocumento, idEstablecimiento, idPuntoEmision)
+		VALUES (@numeroFormulado, @numCorrelativo, 1, 1, 1);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Si ocurre un error, se revierte la transacción
+        ROLLBACK TRANSACTION;
+        -- Opcional: Puedes lanzar el error o manejarlo de otra forma
+        THROW;
+    END CATCH
+END;
