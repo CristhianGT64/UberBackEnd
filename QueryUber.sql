@@ -67,7 +67,7 @@ CREATE TABLE modelos(
 --ya YA
 CREATE TABLE vehiculos(
 	idVehiculo INTEGER PRIMARY KEY IDENTITY(1,1),
-	numPlaca VARCHAR(10) UNIQUE,
+	numPlaca VARCHAR(10),
 	color VARCHAR(100),
 	numPuertas INTEGER CHECK (numPuertas > 0 AND numPuertas < 5),
 	anio INTEGER CHECK(anio > 2014 AND anio < 2030),
@@ -143,7 +143,7 @@ CREATE TABLE historialCuentas(
 CREATE TABLE conductores(
 	idConductor INTEGER PRIMARY KEY IDENTITY(1,1),
 	idUsuario INTEGER REFERENCES usuarios(idUsuario),
-	numPlaca VARCHAR(10) REFERENCES vehiculos(numPlaca),
+	idVehiculo INTEGER REFERENCES vehiculos(idVehiculo),
 	idCuenta INTEGER REFERENCES CuentasConductores(idCuentaConductor),
 	idSolicitud INTEGER REFERENCES solicitudes(idSolicitud),
 	disponible BIT
@@ -338,12 +338,6 @@ CREATE TABLE facturas(
 );
 
 
-
-SELECT * FROM usuarios;
-SELECT * FROM personas;
-SELECT * FROM telefonosUsuarios;
-GO
-
 -- Insert de catalogos
 INSERT INTO estados VALUES('Pendiente', 1);
 INSERT INTO estados VALUES('Aceptada', 1);
@@ -387,17 +381,11 @@ INSERT INTO roles VALUES('Administrador', 'Administrador del sistema');
 INSERT INTO roles VALUES('Conductor', 'Conductor de un vehiculo');
 INSERT INTO roles VALUES('Cliente', 'Consumidor de servicios');
 
-SELECT * FROM roles;
-
 INSERT INTO tiposFotografias VALUES('Carnet', 1);
 INSERT INTO tiposFotografias VALUES('Foto Licencia', 1);
 INSERT INTO tiposFotografias VALUES('Foto Vehiculo', 1);
 INSERT INTO tiposFotografias VALUES('Foto Persona', 1);
 INSERT INTO tiposFotografias VALUES('Foto Confirmacion', 1);
-
-SELECT * FROM tiposFotografias;
-
-SELECT * FROM puntosEmision;
 
 
 INSERT INTO movimientos VALUES('Entrada', 1);
@@ -416,13 +404,7 @@ INSERT INTO telefonosSucursales VALUES(1234-5689);
 INSERT INTO Correos VALUES('uber@gmail.com', 1, 1)
 INSERT INTO Sucursales VALUES('Sucursal 1','Col Vista Hermosa', 1);
 GO
-SELECT * FROM usuariosRoles;
-SELECT * FROM usuarios;
-SELECT * FROM personas;
-SELECT * FROM telefonosUsuarios;
-GO
 --Triguer que cuando se inserta un nuevo usuario se le asigna un nuevo rol
-
 CREATE or ALTER TRIGGER T_usuarios_roles 
 ON usuarios 
 AFTER INSERT
@@ -533,41 +515,8 @@ BEGIN
         THROW;
     END CATCH
 END;
+GO
 ---fIN DEL PROCEDIMIENTO ALMACENADO	
-
---Prueba de ingresar una nueva solictud
-EXEC P_LICENCIAS_SOLI_FOTO
-    @licencia = 'ABC1234563232',
-    @fechaVencimiento = '2025-12-31',
-    @idUsuario = 2,
-    @fechaNacimiento = '1990-01-01',
-    @colorVehiculo = 'Rojo',
-    @numPlaca = 'XYZ987612',
-    @numPuertas = 4,
-    @anio = 2020,
-    @numAsientos = 5,
-    @idmarca = 1,
-    @idmodelo = 1,
-	@fotoLicencia = 'path/to/ppp.jpg',
-	@fotoVehiculo = 'path/to/sasa.jpg',
-	@fotoPersona = 'path/to/pppas.jpg';
-GO
-
-SELECT * FROM usuarios;
-
-SELECT * FROM licencias;
-SELECT * FROM fotografiasSolicitud;
-SELECT * FROM tiposFotografias;
-SELECT * FROM verificacionesSolicitudes;
-SELECT * FROM solicitudes;
-SELECT * FROM administradores;
-SELECT * FROM estados;
-
-INSERT INTO administradores VALUES(1);
-INSERT INTO verificacionesSolicitudes VALUES (5,null,1,null,null);
-UPDATE verificacionesSolicitudes SET idAdministrador = 1 WHERE idVerificacionSolicitud = 1;
-UPDATE verificacionesSolicitudes SET fechaRevision = GETDATE() WHERE idVerificacionSolicitud = 1;
-GO
 
 --Procedimiento almacenado para traer un detalle mas vistoso de las solicitudes
 CREATE OR ALTER PROC P_DETALLES_SOL
@@ -582,22 +531,124 @@ AS
 		INNER JOIN licencias l ON l.idLicencia = s.idLicencia
 		INNER JOIN marcas ma ON ma.idMarca = s.idMarca
 		INNER JOIN modelos mo ON mo.idModelo = s.idModelo
-		WHERE EXISTS (SELECT * FROM verificacionesSolicitudes WHERE idEstado = 1);
+		INNER JOIN verificacionesSolicitudes vs ON vs.idSolicitud = s.idSolicitud
+		WHERE vs.idEstado = 1;
 	END;
 
-		EXEC P_DETALLES_SOL;
+
+		--EXEC P_DETALLES_SOL;
 
 GO
 
---Procedimiento almacenado que trae
+--Procedimiento almacenado que trae LAS fotografias que estan pendientes de ver
 CREATE OR ALTER PROC P_FOTOGRAFIAS_PENDIENTES
 AS
 	BEGIN
 		SELECT fs.idTipoFotografia, fs.idSolicitud, fs.ubicacion FROM fotografiasSolicitud fs
-		where EXISTS (SELECT * FROM verificacionesSolicitudes WHERE idEstado = 1);
+		INNER JOIN verificacionesSolicitudes vs ON fs.idSolicitud = vs.idSolicitud
+		where vs.idEstado = 1;
 	END;
+GO
+		--EXEC P_FOTOGRAFIAS_PENDIENTES;
 
-		EXEC P_FOTOGRAFIAS_PENDIENTES;
+
+--PROCEDIMIENTO ALMACENADO PARA ACEPTAR SOLICITUDES
+CREATE OR ALTER PROC P_ACEPTAR_SOLICITUDES
+    @idUsuario INTEGER,
+    @idSolicitud INTEGER
+AS
+BEGIN
+	BEGIN TRANSACTION;
+		BEGIN TRY 
+			DECLARE @idAdministrador INTEGER;
+			SET @idAdministrador =(SELECT idAdministrador FROM administradores WHERE idUsuario = @idUsuario);
+
+			UPDATE verificacionesSolicitudes SET idAdministrador = @idAdministrador WHERE idSolicitud = @idSolicitud;
+			UPDATE verificacionesSolicitudes SET fechaRevision = GETDATE() WHERE idSolicitud = @idSolicitud;
+			UPDATE verificacionesSolicitudes SET observaciones = 'Solicitud Aceptada' WHERE idSolicitud = @idSolicitud;
+			UPDATE verificacionesSolicitudes SET idEstado = 2 WHERE idSolicitud = @idSolicitud;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Si ocurre un error, se revierte la transacción
+        ROLLBACK TRANSACTION;
+        -- Opcional: Puedes lanzar el error o manejarlo de otra forma
+        THROW;
+    END CATCH
+END;
+---fIN DEL PROCEDIMIENTO ALMACENADO para aceptar Solicitudes
+GO
+
+--PROCEDIMIENTO ALMACENADO PARA CANCELAR SOLICITUDES
+CREATE OR ALTER PROC P_CANCELAR_SOLICITUDES
+    @idUsuario INTEGER,
+    @idSolicitud INTEGER
+AS
+BEGIN
+	BEGIN TRANSACTION;
+		BEGIN TRY 
+			DECLARE @idAdministrador INTEGER;
+			SET @idAdministrador =(SELECT idAdministrador FROM administradores WHERE idUsuario = @idUsuario);
+
+			UPDATE verificacionesSolicitudes SET idAdministrador = @idAdministrador WHERE idSolicitud = @idSolicitud;
+			UPDATE verificacionesSolicitudes SET fechaRevision = GETDATE() WHERE idSolicitud = @idSolicitud;
+			UPDATE verificacionesSolicitudes SET observaciones = 'Solicitud no aceptada por documentacion o informacion invalida' WHERE idSolicitud = @idSolicitud;
+			UPDATE verificacionesSolicitudes SET idEstado = 3 WHERE idSolicitud = @idSolicitud;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Si ocurre un error, se revierte la transacción
+        ROLLBACK TRANSACTION;
+        -- Opcional: Puedes lanzar el error o manejarlo de otra forma
+        THROW;
+    END CATCH
+END;
+---fIN DEL PROCEDIMIENTO ALMACENADO para cancelar Solicitudes
+GO
+
+--Triger que para cuando se actualice el estado de la solciitud a aceptado almacene en vehiculos:
+CREATE OR ALTER TRIGGER T_SOLICITUD_VEHICULO_G
+ON verificacionesSolicitudes
+AFTER UPDATE
+AS
+BEGIN
+    BEGIN
+        INSERT INTO vehiculos
+        SELECT s.numPlaca, s.colorVehiculo, s.numPuertas,s.anio, s.numAsientos,s.idMarca, s.idModelo,  1
+        FROM solicitudes s
+        INNER JOIN verificacionesSolicitudes vs ON s.idSolicitud = vs.idSolicitud
+        WHERE vs.idEstado = 2;
+    END
+END;
+GO
+
+EXEC P_CANCELAR_SOLICITUDES 
+		@idUsuario = 1,
+		@idSolicitud = 8;
+
+GO
+
+SELECT * FROM usuarios;
+
+SELECT * FROM licencias;
+SELECT * FROM fotografiasSolicitud;
+SELECT * FROM tiposFotografias;
+SELECT * FROM verificacionesSolicitudes;
+SELECT * FROM solicitudes;
+SELECT * FROM vehiculos;
+SELECT * FROM conductores;
+SELECT * FROM estados;
+SELECT * FROM administradores;
+
+INSERT INTO administradores VALUES(1);
+INSERT INTO verificacionesSolicitudes VALUES (5,null,1,null,null);
+UPDATE verificacionesSolicitudes SET idAdministrador = 1 WHERE idVerificacionSolicitud = 1;
+UPDATE verificacionesSolicitudes SET fechaRevision = GETDATE() WHERE idVerificacionSolicitud = 1;
+UPDATE verificacionesSolicitudes SET observaciones = 'Solicitud Aceptada' WHERE idVerificacionSolicitud = 1;
+UPDATE verificacionesSolicitudes SET idEstado = 1 WHERE idVerificacionSolicitud = 1;
+
+
+GO
 
 
 		
@@ -607,6 +658,9 @@ AS
 
 SELECT * FROM verificacionesSolicitudes;
 SELECT * FROM usuarios;
+
+CREATE 
+
 
 
 

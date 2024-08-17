@@ -28,7 +28,7 @@ public class Condcutores {
     private Usuarios usuario;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "numplaca", referencedColumnName = "numplaca")
+    @JoinColumn(name = "idvehiculo", referencedColumnName = "idvehiculo")
     private Vehiculos vehiculo;
 
     @OneToOne(mappedBy = "condcutor")
